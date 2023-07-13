@@ -14,7 +14,7 @@
 <meta property="og:description" content="VSCode 在远程连接上有不少方便的功能，结合 ssh config 可以使远程开发与本地开发几乎没有差别。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-07-07T07:51:28.755Z">
-<meta property="article:modified_time" content="2023-07-12T12:07:13.211Z">
+<meta property="article:modified_time" content="2023-07-12T12:22:21.670Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="VSCode">
 <meta property="article:tag" content="SSH">
@@ -108,7 +108,7 @@
 
 <h2 id="0-为什么选择-VSCode"><a href="#0-为什么选择-VSCode" class="headerlink" title="0. 为什么选择 VSCode"></a>0. 为什么选择 VSCode</h2><ul>
 <li>免费，社区版的 JetBrains 甚至没有 remote host 功能；</li>
-<li>VsCode不限定于某种语言；</li>
+<li>VsCode 不限定于某种语言；</li>
 <li>代码和各种文件均保存于服务器上，不占用本地空间，无同步问题；</li>
 <li>一站式连接，无需 Xshell、Terminus 等 SSH 客户机。</li>
 </ul>
@@ -129,7 +129,7 @@
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh Jump.162.45</span><br></pre></td></tr></table></figure>
 
 <p>如果你有 zsh 等命令行解释器，则可以补全目的地名 Jump.162.45。</p>
-<h2 id="2-VSCode-使用-SSH-配置"><a href="#2-VSCode-使用-SSH-配置" class="headerlink" title="2. VSCode 使用 SSH 配置"></a>2. VSCode 使用 SSH 配置</h2><p>安装 Remote-SSH 插件，最左侧会多出一个图标。远程资源管理器一栏中会显示刚刚在 config 中定义的各个目的地。点一下即可连接。</p>
+<h2 id="2-VSCode-使用-SSH-配置"><a href="#2-VSCode-使用-SSH-配置" class="headerlink" title="2. VSCode 使用 SSH 配置"></a>2. VSCode 使用 SSH 配置</h2><p>VSCode 安装 Remote-SSH 插件后，最左侧会多出一个图标。远程资源管理器一栏中会显示刚刚在 config 中定义的各个目的地。点一下即可连接。</p>
 <p>登陆后 VSCode 的终端会成为服务器终端，并且可以访问服务器的文件夹。</p>
 <p>如果要访问经过跳板机的服务器，也只需要直接连接对应的目的地即可，不需要先单独于跳板机建立连接。</p>
 <h2 id="3-服务器免密登陆"><a href="#3-服务器免密登陆" class="headerlink" title="3. 服务器免密登陆"></a>3. 服务器免密登陆</h2><p>免密登陆有着诸多好处，不仅省去输入密码，而且（我认为）是一种更安全的方法。另外，VSCode 的某些服务器功能也是建立在免密登陆的基础上的。</p>
@@ -144,7 +144,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2023/07/07/VSCode%20%E8%BF%9E%E6%8E%A5%E6%9C%8D%E5%8A%A1%E5%99%A8/" data-id="cljzov6ah0000pmfybhd9hj55" data-title="VSCode 连接服务器" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="http://example.com/2023/07/07/VSCode%20%E8%BF%9E%E6%8E%A5%E6%9C%8D%E5%8A%A1%E5%99%A8/" data-id="clk17u6y20001nvfyaqjd1sel" data-title="VSCode 连接服务器" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
       
       
@@ -205,7 +205,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/SSH/" style="font-size: 10px;">SSH</a> <a href="/tags/VSCode/" style="font-size: 10px;">VSCode</a> <a href="/tags/tmux/" style="font-size: 10px;">tmux</a>
+      <a href="/tags/SSH/" style="font-size: 10px;">SSH</a> <a href="/tags/VSCode/" style="font-size: 10px;">VSCode</a> <a href="/tags/tmux/" style="font-size: 20px;">tmux</a>
     </div>
   </div>
 
@@ -225,6 +225,10 @@
     <h3 class="widget-title">Recent Posts</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2023/07/12/Linux%20%E5%86%85%E6%A0%B8%E8%B0%83%E8%AF%95/">Linux 内核调试</a>
+          </li>
         
           <li>
             <a href="/2023/07/12/tmux%20%E4%BD%BF%E7%94%A8%E5%BF%83%E5%BE%97/">tmux 使用心得</a>

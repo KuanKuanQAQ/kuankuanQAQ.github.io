@@ -14,7 +14,7 @@
 <meta property="og:description" content="到网上一查，tmux 的指令成堆成片。查阅有余，实用不足。想要快速上手高效工具可能只需要几条指令而已。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-07-12T12:13:58.232Z">
-<meta property="article:modified_time" content="2023-07-12T12:19:30.077Z">
+<meta property="article:modified_time" content="2023-07-13T00:47:38.542Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="tmux">
 <meta name="twitter:card" content="summary">
@@ -135,22 +135,24 @@
 
 <p>这会让你进入其中之一，然后你在使用 ctrl+b s，切换到你想要的 session 即可。确实存在指定 session 进入的方法，但我认为这才是比较高效的做法。就像是绝大部分 tmux 的命令一样，我这里就不予介绍了。</p>
 <p>重命名当前 session：ctrl+b $。同样存在重命名其他 session 的方法，你不妨切换到那个 session 再做修改。</p>
-<p>切换 session：ctrl+b s。然后可以使用 ctrl+p 和 ctrl+n 上下选择。</p>
+<p>在列表中切换 session：ctrl+b s。然后可以使用 ctrl+p 和 ctrl+n 上下选择。</p>
 <h2 id="2-窗口-window"><a href="#2-窗口-window" class="headerlink" title="2. 窗口 window"></a>2. 窗口 window</h2><p>一个 session 中可以包含多个 window。这些 window 共同组成了一个工作环境。比如你希望一个 window 用来编辑代码，另一个 window 用来编译和执行。</p>
 <p>创建 window：ctrl+b c。create。</p>
 <p>关闭当前 window：ctrl+b &amp;。</p>
 <p>切换到上一个 window：ctrl+b p。</p>
 <p>切换到下一个 window：ctrl+b n。</p>
+<p>在列表中切换 window：ctrl+b w。然后可以使用 ctrl+p 和 ctrl+n 上下选择。</p>
 <h2 id="3-面板-pane"><a href="#3-面板-pane" class="headerlink" title="3. 面板 pane"></a>3. 面板 pane</h2><p>window 类似于桌面，在一个屏幕上不共存。想要一目了然还需要 pane。它会将当前屏幕分为多个面板，每个面板可以单独操作。</p>
 <p>左右划分 pane：ctrl+b %。% 很像是一个 &#x2F; 分开了两个 o。</p>
 <p>上下划分 pane：ctrl+b “。这个不好解释。</p>
 <p>光标切换到下一个 pane：ctrl+b o。other。</p>
 <p>关闭当前光标所在 pane：ctrl+b x。</p>
+<p>调整 pane 大小：ctrl+b :resize-pane -D|U|L|R &lt;size&gt;。</p>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2023/07/12/tmux%20%E4%BD%BF%E7%94%A8%E5%BF%83%E5%BE%97/" data-id="cljzov6aj0001pmfy7pl2e5av" data-title="tmux 使用心得" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="http://example.com/2023/07/12/tmux%20%E4%BD%BF%E7%94%A8%E5%BF%83%E5%BE%97/" data-id="clk17u6y40005nvfy1yogb8aq" data-title="tmux 使用心得" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
       
       
@@ -161,6 +163,15 @@
   
     
 <nav id="article-nav">
+  
+    <a href="/2023/07/12/Linux%20%E5%86%85%E6%A0%B8%E8%B0%83%E8%AF%95/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Linux 内核调试
+        
+      </div>
+    </a>
   
   
     <a href="/2023/07/07/VSCode%20%E8%BF%9E%E6%8E%A5%E6%9C%8D%E5%8A%A1%E5%99%A8/" id="article-nav-older" class="article-nav-link-wrap">
@@ -202,7 +213,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/SSH/" style="font-size: 10px;">SSH</a> <a href="/tags/VSCode/" style="font-size: 10px;">VSCode</a> <a href="/tags/tmux/" style="font-size: 10px;">tmux</a>
+      <a href="/tags/SSH/" style="font-size: 10px;">SSH</a> <a href="/tags/VSCode/" style="font-size: 10px;">VSCode</a> <a href="/tags/tmux/" style="font-size: 20px;">tmux</a>
     </div>
   </div>
 
@@ -222,6 +233,10 @@
     <h3 class="widget-title">Recent Posts</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2023/07/12/Linux%20%E5%86%85%E6%A0%B8%E8%B0%83%E8%AF%95/">Linux 内核调试</a>
+          </li>
         
           <li>
             <a href="/2023/07/12/tmux%20%E4%BD%BF%E7%94%A8%E5%BF%83%E5%BE%97/">tmux 使用心得</a>
