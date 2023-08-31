@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-Hans">
 <head>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
@@ -17,20 +17,23 @@
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="0.">
+  <meta name="description" content="还记得大概半年前刚参与内核项目时，读了各种网上的环境配置教程，一头雾水，怪罪他们语焉不详。现在看来，那些网上的资料量大管饱，和我目前所知也相差无几。这种逐渐发生的改变颇为神奇。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Linux 内核调试">
 <meta property="og:url" content="http://example.com/2023/07/12/Linux%20%E5%86%85%E6%A0%B8%E8%B0%83%E8%AF%95/index.html">
 <meta property="og:site_name" content="kuankuan的博客">
-<meta property="og:description" content="0.">
-<meta property="og:locale" content="en_US">
+<meta property="og:description" content="还记得大概半年前刚参与内核项目时，读了各种网上的环境配置教程，一头雾水，怪罪他们语焉不详。现在看来，那些网上的资料量大管饱，和我目前所知也相差无几。这种逐渐发生的改变颇为神奇。">
+<meta property="og:locale">
 <meta property="article:published_time" content="2023-07-12T12:13:58.232Z">
-<meta property="article:modified_time" content="2023-07-13T08:26:49.526Z">
+<meta property="article:modified_time" content="2023-08-30T08:36:00.872Z">
 <meta property="article:author" content="kuankuan">
-<meta property="article:tag" content="tmux">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="qemu">
+<meta property="article:tag" content="gdb">
+<meta property="article:tag" content="docker">
 <meta name="twitter:card" content="summary">
 
 <link rel="canonical" href="http://example.com/2023/07/12/Linux%20%E5%86%85%E6%A0%B8%E8%B0%83%E8%AF%95/">
@@ -42,7 +45,7 @@
     sidebar: "",
     isHome : false,
     isPost : true,
-    lang   : 'en'
+    lang   : 'zh-Hans'
   };
 </script>
 
@@ -150,13 +153,13 @@
     
   
   
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
     <link itemprop="mainEntityOfPage" href="http://example.com/2023/07/12/Linux%20%E5%86%85%E6%A0%B8%E8%B0%83%E8%AF%95/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
       <meta itemprop="name" content="kuankuan">
-      <meta itemprop="description" content="">
+      <meta itemprop="description" content="行">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -181,7 +184,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-07-13 16:26:49" itemprop="dateModified" datetime="2023-07-13T16:26:49+08:00">2023-07-13</time>
+                <time title="Modified: 2023-08-30 16:36:00" itemprop="dateModified" datetime="2023-08-30T16:36:00+08:00">2023-08-30</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -204,9 +207,110 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <span id="more"></span>
+        <p>还记得大概半年前刚参与内核项目时，读了各种网上的环境配置教程，一头雾水，怪罪他们语焉不详。现在看来，那些网上的资料量大管饱，和我目前所知也相差无几。这种逐渐发生的改变颇为神奇。</p>
+<span id="more"></span>
 
-<h2 id="0"><a href="#0" class="headerlink" title="0."></a>0.</h2>
+<h2 id="0-参考"><a href="#0-参考" class="headerlink" title="0. 参考"></a>0. 参考</h2><p>这些博客写得十分详细：</p>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/456591830">https://zhuanlan.zhihu.com/p/456591830</a><br><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/528031348">https://zhuanlan.zhihu.com/p/528031348</a><br><a target="_blank" rel="noopener" href="https://juejin.cn/post/7024098720824164382">https://juejin.cn/post/7024098720824164382</a><br><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/510289859">https://zhuanlan.zhihu.com/p/510289859</a><br><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1806455">https://cloud.tencent.com/developer/article/1806455</a><br><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/2103409">https://cloud.tencent.com/developer/article/2103409</a></p>
+<h2 id="1-思路"><a href="#1-思路" class="headerlink" title="1. 思路"></a>1. 思路</h2><p>项目初期参考了一篇论文，想把它的代码搬来自己实现。但是实验室所用的服务器环境各异，很难完全符合论文里的要求。某些地方不匹配总是让人不放心。因此，为了成功编译论文补丁下的内核，所以最好能有一个完全与之对齐的环境。</p>
+<p>我选择使用一个 ubuntu:18.04 的 docker。在 docker 中配置环境，包括 gcc 和各种依赖。然后给特定版本的内核打上论文提供的补丁，编译内核，得到 bzImage。</p>
+<p>内核运行还需要根文件系统，这依赖 busybox 构建。可以选择在物理机上安装 busybox，也可以选择在 docker 里安装，还可以新建一个 busybox 的 docker 用于构建根文件系统。考虑到是编译出来的内核使用该文件系统，所以还是使用 docker 内安装的 busybox 生成根文件系统。</p>
+<p>有了 bzImage 和根文件系统，就可以使用 qemu 启动虚拟机了。可以选择在物理机上启动 qemu，需要将 bzImage 和根文件系统从 docker 里取出，也可以在 docker 里直接安装 qemu 启动内核。本着一站式的原则，我还是选择在 docker 里启动 qemu。</p>
+<h2 id="2-为-docker-配置代理"><a href="#2-为-docker-配置代理" class="headerlink" title="2. 为 docker 配置代理"></a>2. 为 docker 配置代理</h2><p>在 10.10.149.xxx 的服务器上可以 ping 通我本地的内网 ip：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">➜  ~ ping 10.130.152.xxx</span><br><span class="line">PING 10.130.152.xxx (10.130.152.xxx) 56(84) bytes of data.</span><br><span class="line">64 bytes from 10.130.152.xxx: icmp_seq=1 ttl=63 time=3.63 ms</span><br><span class="line">64 bytes from 10.130.152.xxx: icmp_seq=2 ttl=63 time=3.00 ms</span><br><span class="line">64 bytes from 10.130.152.xxx: icmp_seq=3 ttl=63 time=3.09 ms</span><br><span class="line">64 bytes from 10.130.152.xxx: icmp_seq=4 ttl=63 time=3.97 ms</span><br></pre></td></tr></table></figure>
+
+<p>因此在本地使用 clashX 等代理工具的情况下，可以将内网服务器的 shell 同样连接到本地代理端口，并使用 curl 验证：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">➜  ~ <span class="built_in">export</span> https_proxy=http://10.130.152.xxx:7890 &amp;&amp; <span class="built_in">export</span> http_proxy=http://10.130.152.xxx:7890 &amp;&amp; <span class="built_in">export</span> all_proxy=socks5://10.130.152.xxx:7890</span><br><span class="line">➜  ~ curl google.com</span><br><span class="line">&lt;HTML&gt;&lt;HEAD&gt;&lt;meta http-equiv=<span class="string">&quot;content-type&quot;</span> content=<span class="string">&quot;text/html;charset=utf-8&quot;</span>&gt;</span><br><span class="line">&lt;TITLE&gt;301 Moved&lt;/TITLE&gt;&lt;/HEAD&gt;&lt;BODY&gt;</span><br><span class="line">&lt;H1&gt;301 Moved&lt;/H1&gt;</span><br><span class="line">The document has moved</span><br><span class="line">&lt;A HREF=<span class="string">&quot;http://www.google.com/&quot;</span>&gt;here&lt;/A&gt;.</span><br><span class="line">&lt;/BODY&gt;&lt;/HTML&gt;</span><br></pre></td></tr></table></figure>
+
+<p>而 docker 有所不同。在执行 docker pull 时，是由守护进程 dockerd 来执行。因此，代理需要配在 dockerd 的环境中。而这个环境，则是受 systemd 所管控，因此实际是 systemd 的配置。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">➜  ~ sudo <span class="built_in">mkdir</span> -p /etc/systemd/system/docker.service.d</span><br><span class="line">➜  ~ sudo <span class="built_in">touch</span> /etc/systemd/system/docker.service.d/proxy.conf</span><br></pre></td></tr></table></figure>
+<p>在 proxy.conf 中添加以下内容：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[Service]</span><br><span class="line">Environment=&quot;HTTP_PROXY=http://10.130.152.xxx:7890&quot;</span><br><span class="line">Environment=&quot;HTTPS_PROXY=http://10.130.152.xxx:7890&quot;</span><br><span class="line">Environment=&quot;NO_PROXY=localhost,127.0.0.1,.example.com&quot;</span><br></pre></td></tr></table></figure>
+<p>这样就可以成功拉到 docker hub 上的各种镜像了。</p>
+<p>但是我们还需要在容器运行时安装各种环境，所以需要容器内部的代理。这一代理需要配置 <code>~/.docker/config.json</code>，只在 docker 17.07 以上版本生效：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line"> <span class="attr">&quot;proxies&quot;</span><span class="punctuation">:</span></span><br><span class="line"> <span class="punctuation">&#123;</span></span><br><span class="line">   <span class="attr">&quot;default&quot;</span><span class="punctuation">:</span></span><br><span class="line">   <span class="punctuation">&#123;</span></span><br><span class="line">     <span class="attr">&quot;httpProxy&quot;</span><span class="punctuation">:</span> <span class="string">&quot;http://10.130.152.xxx:7890&quot;</span><span class="punctuation">,</span></span><br><span class="line">     <span class="attr">&quot;httpsProxy&quot;</span><span class="punctuation">:</span> <span class="string">&quot;http://10.130.152.xxx:7890&quot;</span><span class="punctuation">,</span></span><br><span class="line">     <span class="attr">&quot;noProxy&quot;</span><span class="punctuation">:</span> <span class="string">&quot;localhost,127.0.0.1,.example.com&quot;</span></span><br><span class="line">   <span class="punctuation">&#125;</span></span><br><span class="line"> <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>最后重启生效：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo systemctl daemon-reload</span><br><span class="line">sudo systemctl restart docker</span><br></pre></td></tr></table></figure>
+
+<p>我尚不知道在 docker 启动后如何修改这一代理。</p>
+<h2 id="3-启动-container"><a href="#3-启动-container" class="headerlink" title="3. 启动 container"></a>3. 启动 container</h2><p>拉取基础镜像，并启动：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo docker pull ubuntu:18.04</span><br><span class="line">sudo docker run -i -t ubuntu:18.04 /bin/bash</span><br></pre></td></tr></table></figure>
+
+<p>已经配置了代理所以也就不用为 apt-get 换源了。</p>
+<p>查看正在运行的容器的 container id，根据这一 id 向 docker 内传入内核源代码以及 adelie 的补丁文件。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">docker ps</span><br><span class="line">docker <span class="built_in">cp</span> /home/lirunkuan/adelie-kaslr-linux-5.0.4/linux-5.0.4/ f5fa1b51d70c:~/</span><br><span class="line">docker <span class="built_in">cp</span> /home/lirunkuan/adelie-kaslr-linux-5.0.4/source-main/ f5fa1b51d70c:~/</span><br><span class="line">docker <span class="built_in">cp</span> /home/lirunkuan/busybox-1.36.1/ f5fa1b51d70c:~/</span><br></pre></td></tr></table></figure>
+
+<p>进入 docker：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it f5fa1b51d70c bash</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> /path/to/local/dir</span><br><span class="line">docker run -v /path/to/local/dir:/path/to/container/dir -it adelie:v0 /bin/bash</span><br></pre></td></tr></table></figure>
+
+<p>其中 -v 加载本地目录 &#x2F;path&#x2F;to&#x2F;local&#x2F;dir 到容器的 &#x2F;path&#x2F;to&#x2F;container&#x2F;dir 中。这两个目录内容会始终保持一致。注意两个路径必须为绝对路径。&#x2F;path&#x2F;to&#x2F;container&#x2F;dir 不能为 &#x2F;root&#x2F;adelie-kaslr-linux-5.0.4。此后我们将 &#x2F;root&#x2F;adelie-kaslr-linux-5.0.4 复制到 &#x2F;path&#x2F;to&#x2F;container&#x2F;dir 中。这样编译只会占用本地目录 &#x2F;path&#x2F;to&#x2F;local&#x2F;dir。</p>
+<p>docker run 命令会从指定 image 启动一个 container，但会随 &#x2F;bin&#x2F;bash 的退出而退出。需要使用 docker start 命令重新启动该容器，此后再 docker exec 进入容器。</p>
+<h2 id="4-编译-qemu"><a href="#4-编译-qemu" class="headerlink" title="4. 编译 qemu"></a>4. 编译 qemu</h2><p>apt 安装的 qemu 版本太低了，模拟不了 a57。</p>
+<p>下载最新的 qemu 8.0.2：<a target="_blank" rel="noopener" href="https://www.qemu.org/download/%E3%80%82">https://www.qemu.org/download/。</a></p>
+<p>注意在 container 中编译：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">➜  ~ cd qemu-8.0.2</span><br><span class="line">➜  qemu-8.0.2 ./configure</span><br><span class="line">➜  qemu-8.0.2 make -j 40</span><br><span class="line">➜  qemu-8.0.2 make install</span><br></pre></td></tr></table></figure>
+
+<p>-j 40 记得加，会快不少。可能会缺少一些依赖，用 apt 安装一下即可。</p>
+<p>验证一下版本：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">➜  ~ qemu-system-aarch64 --version</span><br><span class="line">QEMU emulator version 8.0.2</span><br><span class="line">Copyright (c) 2003-2022 Fabrice Bellard and the QEMU Project developers</span><br></pre></td></tr></table></figure>
+
+<h2 id="5-编译-linux-内核"><a href="#5-编译-linux-内核" class="headerlink" title="5. 编译 linux 内核"></a>5. 编译 linux 内核</h2><p>我没有特别进行任何设置，只使用了默认设置：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">➜  ~ cd kernel-openEuler-22.03-LTS</span><br><span class="line">➜  kernel-openEuler-22.03-LTS make defconfig</span><br><span class="line">➜  kernel-openEuler-22.03-LTS make -j 40</span><br></pre></td></tr></table></figure>
+
+<p>编译好的内核为 arch&#x2F;arm64&#x2F;boot&#x2F;Image。</p>
+<blockquote>
+<p>以下过程比较繁琐，我将最终制作好的根文件系统放到了 git 中，有两个分支分别用于 x86-64 和 arm64：<a target="_blank" rel="noopener" href="https://github.com/KuanKuanQAQ/linux-rootfs/tree/main%E3%80%82%E5%A6%82%E6%9E%9C%E6%88%91%E7%9A%84%E6%A0%B9%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E8%83%BD%E7%94%A8%EF%BC%88%E6%88%91%E4%B9%9F%E4%B8%8D%E7%A1%AE%E5%AE%9A%E5%AE%83%E6%80%BB%E5%8F%AF%E7%94%A8%EF%BC%89%EF%BC%8C%E9%82%A3">https://github.com/KuanKuanQAQ/linux-rootfs/tree/main。如果我的根文件系统能用（我也不确定它总可用），那</a> busybox 也不用编译了，直接跳到第 5 节。</p>
+</blockquote>
+<h2 id="6-编译-busybox"><a href="#6-编译-busybox" class="headerlink" title="6. 编译 busybox"></a>6. 编译 busybox</h2><p>随便下了个 busybox 1.30.0：<a target="_blank" rel="noopener" href="https://busybox.net/downloads/%E3%80%82%E6%9C%80%E6%96%B0%E7%9A%84">https://busybox.net/downloads/。最新的</a> 1.36 应该也没问题。</p>
+<p>注意，busybox 也需要在 arm 架构下的 container 中重新编译，这样产生的各种文件才能在 arm 虚拟机里使用。</p>
+<p>在编译 busybox 之前需要修改一处配置：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">➜  ~ cd busybox-1.30.0</span><br><span class="line">➜  busybox-1.30.0 make menuconfig // Settings --&gt;Build Options --&gt;[*] Build static binary (no shared libs)</span><br></pre></td></tr></table></figure>
+
+<p>开启这个 Setting -&gt; [*] Build static binary (no shared libs)。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">➜  busybox-1.30.0 make -j 40</span><br><span class="line">➜  busybox-1.30.0 make install</span><br></pre></td></tr></table></figure>
+
+<h2 id="7-构造根文件系统"><a href="#7-构造根文件系统" class="headerlink" title="7. 构造根文件系统"></a>7. 构造根文件系统</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">➜  ~ cd busybox-1.30.0/_install</span><br><span class="line">➜  _install mkdir etc dev lib</span><br><span class="line">➜  _install ls</span><br><span class="line">bin  dev  etc  lib  linuxrc  sbin  usr</span><br></pre></td></tr></table></figure>
+
+<p>在 etc&#x2F; 目录下新建如下文件：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">➜  _install cd etc/</span><br><span class="line">➜  etc cat profile </span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">!/bin/sh</span></span><br><span class="line">export HOSTNAME=kuankuanQAQ</span><br><span class="line">export USER=root</span><br><span class="line">export HOME=/home</span><br><span class="line">export PS1=&quot;[$USER@$HOSTNAME \W]\# &quot;</span><br><span class="line">PATH=/bin:/sbin:/usr/bin:/usr/sbin</span><br><span class="line">LD_LIBRARY_PATH=/lib:/usr/lib:$LD_LIBRARY_PATH</span><br><span class="line">export PATH LD_LIBRARY_PATH</span><br><span class="line">➜  etc cat inittab </span><br><span class="line">::sysinit:/etc/init.d/rcS</span><br><span class="line">::respawn:-/bin/sh</span><br><span class="line">::askfirst:-/bin/sh</span><br><span class="line">::ctrlaltdel:/bin/umount -a -r</span><br><span class="line">➜  etc cat fstab </span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">device  mount-point    <span class="built_in">type</span>     options   dump   fsck order</span></span><br><span class="line">proc /proc proc defaults 0 0</span><br><span class="line">tmpfs /tmp tmpfs defaults 0 0</span><br><span class="line">sysfs /sys sysfs defaults 0 0</span><br><span class="line">tmpfs /dev tmpfs defaults 0 0</span><br><span class="line">debugfs /sys/kernel/debug debugfs defaults 0 0</span><br><span class="line">➜  etc cat init.d/rcS </span><br><span class="line">mkdir -p /sys</span><br><span class="line">mkdir -p /tmp</span><br><span class="line">mkdir -p /proc</span><br><span class="line">/bin/mount -a</span><br><span class="line">mkdir -p /dev/pts</span><br><span class="line">mount -t devpts devpts /dev/pts</span><br><span class="line">mdev -s</span><br></pre></td></tr></table></figure>
+
+<p>在 dev&#x2F; 中创建设备文件：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">➜  _install cd dev/</span><br><span class="line">➜  dev mknod console c 5 1</span><br></pre></td></tr></table></figure>
+
+<p>接下来创建 initramfs。这个文件夹是个独立的文件夹，放在哪里都可以。</p>
+<p>initramfs 中包含 BusyBox 可执行程序、必要的设备文件、启动脚本 init。其中 init 脚本只挂载了虚拟文件系统 procfs 和 sysfs，没有挂载磁盘根文件系统，所有调试操作都在内存中进行，不会落磁盘。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">➜  rootfs mkdir initramfs</span><br><span class="line">➜  rootfs cd initramfs</span><br><span class="line">➜  initramfs cp ~/busybox-1.30.0/_install/* -rf ./</span><br><span class="line">➜  initramfs mkdir proc sys</span><br><span class="line">➜  initramfs sudo cp -a /dev/&#123;null,console,tty&#125; dev/</span><br><span class="line">➜  initramfs rm linuxrc</span><br><span class="line">➜  initramfs touch init</span><br><span class="line">➜  initramfs chmod a+x init</span><br></pre></td></tr></table></figure>
+
+<p>在 init 文件中写入：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">➜  initramfs cat init</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">!/bin/busybox sh</span>         </span><br><span class="line">mount -t proc none /proc  </span><br><span class="line">mount -t sysfs none /sys  </span><br><span class="line"></span><br><span class="line">exec /sbin/init</span><br></pre></td></tr></table></figure>
+
+<p>最后打包 initramfs：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">➜  rootfs <span class="built_in">cd</span> initramfs</span><br><span class="line">➜  initramfs find . -print0 | cpio --null -ov --format=newc | gzip -9 &gt; ../initramfs.cpio.gz</span><br></pre></td></tr></table></figure>
+
+<h2 id="8-启动-qemu"><a href="#8-启动-qemu" class="headerlink" title="8. 启动 qemu"></a>8. 启动 qemu</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">qemu-system-aarch64 -s -S \</span><br><span class="line">    -machine virt -cpu cortex-a57 \</span><br><span class="line">    -kernel ~/kernel-openEuler-22.03-LTS/arch/arm64/boot/Image \</span><br><span class="line">    -initrd ~/rootfs/initramfs.cpio.gz \</span><br><span class="line">    -nographic \</span><br><span class="line">    -append <span class="string">&quot;nokaslr console=ttyAMA0&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>其中 -s 表示监听 gdb:1234 端口，-S 表示等待 gdb 连接。想要直接运行则去掉 -S。<strong>console&#x3D;ttyAMA0 才能正常输出。</strong></p>
+<p>退出 qemu：ctrl+a 进入命令模式，x 退出 qemu。</p>
+<h2 id="9-启动-gbd-连接-qemu"><a href="#9-启动-gbd-连接-qemu" class="headerlink" title="9. 启动 gbd 连接 qemu"></a>9. 启动 gbd 连接 qemu</h2><p>配置 gdb 的初始化文件 .gdbinit：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">➜  kernel-openEuler-22.03-LTS cat .gdbinit</span><br><span class="line">symbol-file ./vmlinux</span><br><span class="line">target remote : 1234</span><br><span class="line"></span><br><span class="line">layout src</span><br></pre></td></tr></table></figure>
+
+<p>同时要将这个 .gdbinit 加入 auto-load 的名单中，在用户的 home 目录下的 .gdbinit 中添加：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">➜  ~ cat .gdbinit</span><br><span class="line">set auto-load safe-path /</span><br></pre></td></tr></table></figure>
+
+<p>在 kernel-openEuler-22.03-LTS 中的 .gdbinit 同目录下启动 gdb</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">➜  kernel-openEuler-22.03-LTS gdb</span><br></pre></td></tr></table></figure>
+
+<p>这时可以自动读取 vmlinux 中的符号，以及链接 target 1234，并打开源代码窗口。</p>
+<p>说实话 58.240.113.42 卡坏了，gdb 监听下 qemu 根本起不来。</p>
+<h2 id="10-加载内核模块"><a href="#10-加载内核模块" class="headerlink" title="10. 加载内核模块"></a>10. 加载内核模块</h2><p>在虚拟机中可以看到我们放入的两个 ko 内核模块文件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@kuankuanQAQ ]<span class="comment"># ls</span></span><br><span class="line">bin        e1000e.ko  lib        proc       sys</span><br><span class="line">dev        etc        linuxrc    root       tmp</span><br><span class="line">e1000.ko   init       mnt        sbin       usr</span><br></pre></td></tr></table></figure>
+<p>使用 insmod 启动一个：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">[root@kuankuanQAQ ]<span class="comment"># insmod e1000e.ko</span></span><br><span class="line">[   62.147735] counter.got = 225</span><br><span class="line">[   62.148417] counter.fixed_got = 4</span><br><span class="line">[   62.149013] counter.got_rand = 0</span><br><span class="line">[   62.149543] counter.fixed_got_rand = 84</span><br><span class="line">[   62.150211] counter.plt = 175</span><br><span class="line">[   62.150730] counter.plt_rand = 0</span><br><span class="line">[   62.151278] counter.fixed_plt = 4</span><br><span class="line">[   62.151939] counter.fixed_plt_rand = 84</span><br><span class="line">[   62.172410] e1000e: module verification failed: signature and/or required key missing - tainting kernel</span><br><span class="line">[   62.208336] e1000e: nullify_relocations</span><br><span class="line">[   62.210514] .rela.text nullified</span><br><span class="line">[   62.211193] .rela.fixed.text nullified</span><br><span class="line">[   62.212142] .rela.text.unlikely nullified</span><br><span class="line">[   62.213072] .rela.init.text nullified</span><br><span class="line">[   62.213682] .rela.exit.text nullified</span><br><span class="line">[   62.214258] .rela.smp_locks nullified</span><br><span class="line">[   62.214818] .rela__ex_table nullified</span><br><span class="line">[   62.215309] .rela.altinstructions nullified</span><br><span class="line">[   62.216246] module: Found un-randomizable PCxx relocation <span class="keyword">in</span> .rela__jump_table, <span class="built_in">type</span> 24, symbol num 1148</span><br><span class="line">[   62.217681] module: Found un-randomizable PCxx relocation <span class="keyword">in</span> .rela__jump_table, <span class="built_in">type</span> 24, symbol num 1148</span><br><span class="line">[   62.218358] .rela__jump_table relocations removed = 742/744</span><br><span class="line">[   62.218910] .rela.data.rel.ro relocations removed = 61/243</span><br><span class="line">[   62.219701] .rela__verbose relocations removed = 0/984</span><br><span class="line">[   62.220173] .rela.data.rel.local relocations removed = 0/9</span><br><span class="line">[   62.220565] .rela__bug_table nullified</span><br><span class="line">[   62.221188] .rela__param relocations removed = 34/48</span><br><span class="line">[   62.222115] .rela.fixed.rodata nullified</span><br><span class="line">[   62.222870] .rela.fixed.data relocations removed = 6/7</span><br><span class="line">[   62.223950] .rela.data.rel.ro.local relocations removed = 0/33</span><br><span class="line">[   62.225010] .rela.data.rel nullified</span><br><span class="line">[   62.225628] .rela.gnu.linkonce.this_module relocations removed = 0/3</span><br><span class="line">[   62.230423] .rela.debug_aranges nullified</span><br><span class="line">[   62.231292] .rela.debug_info nullified</span><br><span class="line">[   62.232158] .rela.debug_line nullified</span><br><span class="line">[   62.232946] .rela.debug_frame nullified</span><br><span class="line">[   62.233601] .rela.debug_loc nullified</span><br><span class="line">[   62.234224] .rela.debug_ranges nullified</span><br><span class="line">[   62.248885] e1000e: Intel(R) PRO/1000 Network Driver - 3.2.6-k</span><br><span class="line">[   62.250010] e1000e: Copyright(c) 1999 - 2015 Intel Corporation.</span><br></pre></td></tr></table></figure>
+
+
     </div>
 
     
@@ -215,7 +319,10 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/tmux/" rel="tag"># tmux</a>
+              <a href="/tags/Linux/" rel="tag"># Linux</a>
+              <a href="/tags/qemu/" rel="tag"># qemu</a>
+              <a href="/tags/gdb/" rel="tag"># gdb</a>
+              <a href="/tags/docker/" rel="tag"># docker</a>
           </div>
 
         
@@ -286,30 +393,30 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#0"><span class="nav-number">1.</span> <span class="nav-text">0.</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#0-%E5%8F%82%E8%80%83"><span class="nav-number">1.</span> <span class="nav-text">0. 参考</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E6%80%9D%E8%B7%AF"><span class="nav-number">2.</span> <span class="nav-text">1. 思路</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E4%B8%BA-docker-%E9%85%8D%E7%BD%AE%E4%BB%A3%E7%90%86"><span class="nav-number">3.</span> <span class="nav-text">2. 为 docker 配置代理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E5%90%AF%E5%8A%A8-container"><span class="nav-number">4.</span> <span class="nav-text">3. 启动 container</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E7%BC%96%E8%AF%91-qemu"><span class="nav-number">5.</span> <span class="nav-text">4. 编译 qemu</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-%E7%BC%96%E8%AF%91-linux-%E5%86%85%E6%A0%B8"><span class="nav-number">6.</span> <span class="nav-text">5. 编译 linux 内核</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-%E7%BC%96%E8%AF%91-busybox"><span class="nav-number">7.</span> <span class="nav-text">6. 编译 busybox</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#7-%E6%9E%84%E9%80%A0%E6%A0%B9%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F"><span class="nav-number">8.</span> <span class="nav-text">7. 构造根文件系统</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#8-%E5%90%AF%E5%8A%A8-qemu"><span class="nav-number">9.</span> <span class="nav-text">8. 启动 qemu</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#9-%E5%90%AF%E5%8A%A8-gbd-%E8%BF%9E%E6%8E%A5-qemu"><span class="nav-number">10.</span> <span class="nav-text">9. 启动 gbd 连接 qemu</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#10-%E5%8A%A0%E8%BD%BD%E5%86%85%E6%A0%B8%E6%A8%A1%E5%9D%97"><span class="nav-number">11.</span> <span class="nav-text">10. 加载内核模块</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
       <div class="site-overview-wrap sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
   <p class="site-author-name" itemprop="name">kuankuan</p>
-  <div class="site-description" itemprop="description"></div>
+  <div class="site-description" itemprop="description">行</div>
 </div>
 <div class="site-state-wrap motion-element">
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">4</span>
+          <span class="site-state-item-count">5</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
-        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-count">2</span>
         <span class="site-state-item-name">categories</span>
       </div>
       <div class="site-state-item site-state-tags">
-        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-count">8</span>
         <span class="site-state-item-name">tags</span>
       </div>
   </nav>
@@ -342,7 +449,7 @@
   </span>
   <span class="author" itemprop="copyrightHolder">kuankuan</span>
 </div>
-  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
   </div>
 
         
@@ -368,7 +475,7 @@
 <script src="/js/motion.js"></script>
 
 
-<script src="/js/schemes/muse.js"></script>
+<script src="/js/schemes/pisces.js"></script>
 
 
 <script src="/js/next-boot.js"></script>

@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="ELF 文件格式汇总，主要是 linking view 下的 ELF 文件。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ELF 文件格式">
+<meta property="og:url" content="http://example.com/2023/07/07/ELF%20%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F/index.html">
+<meta property="og:site_name" content="kuankuan的博客">
+<meta property="og:description" content="ELF 文件格式汇总，主要是 linking view 下的 ELF 文件。">
+<meta property="og:locale">
+<meta property="og:image" content="http://example.com/Users/Kuan/Documents/Paper%20Note/Linux%20Kernel%20&%20Related%20Technologies/ELF%20%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F/ELF%20%E6%96%87%E4%BB%B6%E5%B8%83%E5%B1%80/Canvas%201.jpg">
+<meta property="og:image" content="http://example.com/Users/Kuan/Documents/Paper%20Note/Linux%20Kernel%20&%20Related%20Technologies/ELF%20%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F/%E6%9B%B4%E6%96%B0%E5%89%8D%E5%90%8E%20ELF%20%E6%96%87%E4%BB%B6%E5%B8%83%E5%B1%80%E5%AF%B9%E6%AF%94/Canvas%201.jpg">
+<meta property="article:published_time" content="2023-07-07T07:51:28.755Z">
+<meta property="article:modified_time" content="2023-08-30T08:44:51.550Z">
+<meta property="article:author" content="kuankuan">
+<meta property="article:tag" content="ELF">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/Users/Kuan/Documents/Paper%20Note/Linux%20Kernel%20&%20Related%20Technologies/ELF%20%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F/ELF%20%E6%96%87%E4%BB%B6%E5%B8%83%E5%B1%80/Canvas%201.jpg">
+
+<link rel="canonical" href="http://example.com/2023/07/07/ELF%20%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>ELF 文件格式 | kuankuan的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">kuankuan的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/07/07/ELF%20%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="kuankuan">
+      <meta itemprop="description" content="行">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="kuankuan的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ELF 文件格式
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-07-07 15:51:28" itemprop="dateCreated datePublished" datetime="2023-07-07T15:51:28+08:00">2023-07-07</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2023-08-30 16:44:51" itemprop="dateModified" datetime="2023-08-30T16:44:51+08:00">2023-08-30</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Linux/" itemprop="url" rel="index"><span itemprop="name">Linux</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>ELF 文件格式汇总，主要是 linking view 下的 ELF 文件。</p>
+<span id="more"></span>
+
+<h2 id="1-ELF-文件布局"><a href="#1-ELF-文件布局" class="headerlink" title="1. ELF 文件布局"></a>1. ELF 文件布局</h2><p>ELF 格式可以表达四种类型的二进制对象文件：</p>
+<ul>
+<li>可重定位文件（<code>relocatable file</code>，包括 .o 文件，.ko 内核模块文件）：包含若干代码节和数据节。此类文件可与其他可重定位目标文件链接，从而创建动态可执行文件、共享目标文件或其他可重定位目标文件。</li>
+<li>可执行文件（<code>executable file</code>）：指定了创建程序的进程映像的方式。此文件通常在运行时绑定到共享目标文件以创建进程映像。</li>
+<li>共享库文件（<code>shared object file</code>，即 .so 文件，用于动态链接）：包含适用于进行其他链接的代码和数据。链接编辑器可将此文件与其他可重定位目标文件和共享目标文件一起处理，以创建其他目标文件。运行时链接程序会将此文件与动态可执行文件和其他共享目标文件合并，以创建进程映像。</li>
+<li>核心转储文件（<code>core dump file</code>）</li>
+</ul>
+<p>可重定位文件用在链接阶段；可执行文件用在程序装载阶段；共享库则同时用在编译链接和装载阶段。使用于不同阶段的 ELF 文件有着不同的布局，如下图所示：</p>
+<img src="/Users/Kuan/Documents/Paper Note/Linux Kernel & Related Technologies/ELF 文件格式/ELF 文件布局/Canvas 1.jpg" alt="Canvas 1" style="zoom:24%;" />
+
+<p>从上图可见，ELF 格式文件整体可分为四大部分：</p>
+<ul>
+<li><code>ELF Header</code>，ELF 头部，定义全局性信息。ELF 头位于目标文件的起始位置，用于说明文件的组织情况。只有 ELF 头在文件中具有固定位置。由于 ELF 格式的灵活性，不要求节头表、节或段具有指定的顺序。</li>
+<li><code>Program Header Table</code>，描述段信息的数组，数组中每个元素对应一个段。程序头表指示系统如何创建进程映像。用于生成进程映像、可执行文件和共享目标文件的文件必须具有程序头表。<strong>可重定位目标文件无需程序头表。</strong></li>
+<li><code>Segment and Section</code>，段（Segment）由若干节（Section）组成。段在运行时被加载到进程地址空间中，包含在可执行文件中；节是段的组成单元，包含在可执行文件和可重定位文件中。节中记录了链接过程中需要的目标文件信息，包括指令、数据、符号表和重定位信息。</li>
+<li><code>Section Header Table</code>，描述节（Section）信息的数组，每个元素对应一个节；通常包含在可重定位文件中，可执行文件中为可选（通常包含）。节头表包含说明文件各节的信息。每节在表中有一个与之对应的项。每一项都指定了节名称和节大小之类的信息。<strong>链接过程中使用的文件必须具有节头表。</strong></li>
+</ul>
+<p>在包含编译器插件的 gcc 重新编译下，内核模块 ELF 文件的 section 部分有所变化。普通 ELF 文件（original ELF view）的所有函数均位于 .text 节，而以 bfq.ko 为例的内核模块文件每个函数均独立成节。</p>
+<p><strong>Trampoline 函数</strong></p>
+<p>定义在内核模块中的函数不会被直接调用，而是会被 trampoline 函数间接调用。每个函数均拥有自己的 trampoline 函数，来自内核、其他内核模块和本内核模块的函数调用均会首先调用 trampoline 函数，然后在 trampoline 函数中跳转至目标函数。Trampoline 函数不会被重随机。</p>
+<p>每个 trampoline 函数拥有自己的重定位表，用于重定位目标函数。在重随机时，根据所有节的装载位置，更新符号表中符号的定义位置。随后根据重定位表的信息，重写 trampoline 函数中的跳转目的地址。</p>
+<p>在 ELF 文件结构中，原先的 .text 节会以函数粒度分割为若干节，并且在 ELF 文件中新增与函数数量相同的 trampoline 节。每个 trampoline 节会紧跟一个重定位节，用于在重随机时重定位目标函数地址。同时在符号表中新增 trampoline 函数的定义，其符号名与原函数相同，原函数在符号表中增加名称后缀 <code>_real</code>，仅被 trampoline 函数直接调用。此外，节头表增加相应的节头表项，记录新增节的信息。以上 ELF 布局修改均由编译器插件实现，下图为更新前后 ELF 文件布局对比：</p>
+<img src="/Users/Kuan/Documents/Paper Note/Linux Kernel & Related Technologies/ELF 文件格式/更新前后 ELF 文件布局对比/Canvas 1.jpg" alt="Canvas 1" style="zoom:24%;" />
+
+<p>图中有颜色部分为对 ELF 文件的修改。橙色部分为代码节（text section）：在原 ELF 文件中，代码节含有所有函数；在修改后的 ELF 文件中，每个函数单独为一个节。紫色部分为重定位节：在原 ELF 文件中，代码节的重定位表为一个整体，形成一个节；在修改后的 ELF 文件中，每个函数构成的节均拥有一个自己的重定位节，其中记录了该函数代码节中需要重定位的目的地址。青色部分为新增的 trampoline 相关节，包括：trampoline 函数代码节，作为被调用函数的入口；trampoline 重定位节，负责对被调用函数进行重定位；符号表节，修改被调用函数定义位置，新增重随机函数符号的定义。</p>
+<h2 id="2-基本数据类型"><a href="#2-基本数据类型" class="headerlink" title="2. 基本数据类型"></a>2. 基本数据类型</h2><p>64 位 ELF 文件格式中涉及的基本数据类型如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* --------- include/upai/linux/elf.h:15 ---------*/</span></span><br><span class="line"><span class="comment">/* 64-bit ELF base types. */</span>   <span class="comment">//   长度，描述对象</span></span><br><span class="line"><span class="keyword">typedef</span> __u64 Elf64_Addr;      <span class="comment">// 8 字节，无符号程序地址</span></span><br><span class="line"><span class="keyword">typedef</span> __u16 Elf64_Half;      <span class="comment">// 2 字节，无符号中整数</span></span><br><span class="line"><span class="keyword">typedef</span> __s16 Elf64_SHalf;     <span class="comment">// 2 字节，有符号中整数</span></span><br><span class="line"><span class="keyword">typedef</span> __u64 Elf64_Off;       <span class="comment">// 8 字节，无符号文件偏移</span></span><br><span class="line"><span class="keyword">typedef</span> __s32 Elf64_Sword;     <span class="comment">// 4 字节，有符号整数</span></span><br><span class="line"><span class="keyword">typedef</span> __u32 Elf64_Word;      <span class="comment">// 4 字节，无符号整数</span></span><br><span class="line"><span class="keyword">typedef</span> __u64 Elf64_Xword;     <span class="comment">// 8 字节，无符号长整数</span></span><br><span class="line"><span class="keyword">typedef</span> __s64 Elf64_Sxword;    <span class="comment">// 8 字节，有符号长整数</span></span><br></pre></td></tr></table></figure>
+
+<p>目标文件格式定义的所有数据结构都遵循相关类的自然大小和对齐规则。</p>
+<p>数据结构内部可以包含显式填充，以确保 4 字节成员的起始地址 4 字节对齐，8 字节成员 8 字节对齐。数据结构对象在文件中的起始地址也会适当对齐。例如，包含 <code>Elf32_Addr</code> 成员的结构在文件中与 4 字节边界对齐，包含 <code>Elf64_Addr</code> 成员的结构与 8 字节边界对齐。</p>
+<h2 id="3-ELF-头"><a href="#3-ELF-头" class="headerlink" title="3. ELF 头"></a>3. ELF 头</h2><p>ELF 文件格式具有相当的灵活性，不要求节头表、节或段具有指定的顺序。只有 ELF 头在文件中具有固定位置：位于目标文件的起始位置，用于说明文件的组织情况。</p>
+<p>使用 <code>readelf -h</code> 查看 bfq.ko 的 ELF 头内容：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">ELF Header:</span><br><span class="line">  Magic:   7f 45 4c 46 02 01 01 00 00 00 00 00 00 00 00 00 </span><br><span class="line">  Class:                             ELF64</span><br><span class="line">  Data:                              2&#x27;s complement, little endian</span><br><span class="line">  Version:                           1 (current)</span><br><span class="line">  OS/ABI:                            UNIX - System V</span><br><span class="line">  ABI Version:                       0</span><br><span class="line">  Type:                              REL (Relocatable file)</span><br><span class="line">  Machine:                           AArch64</span><br><span class="line">  Version:                           0x1</span><br><span class="line">  Entry point address:               0x0</span><br><span class="line">  Start of program headers:          0 (bytes into file)</span><br><span class="line">  Start of section headers:          2162032 (bytes into file)</span><br><span class="line">  Flags:                             0x0</span><br><span class="line">  Size of this header:               64 (bytes)</span><br><span class="line">  Size of program headers:           0 (bytes)</span><br><span class="line">  Number of program headers:         0</span><br><span class="line">  Size of section headers:           64 (bytes)</span><br><span class="line">  Number of section headers:         390</span><br><span class="line">  Section header string table index: 389</span><br></pre></td></tr></table></figure>
+
+<p>与原 bfq.ko 的区别在于：</p>
+<ol>
+<li><code>Start of section headers</code> 节头表位置由 2064904 字节偏移处变为 2162032 字节，这是由于新增 trampoline 相关节。文件实际大小大约增长 4.5%。</li>
+<li><code>Number of section headers</code> 节数量由 46 增加到 390，这是由于原代码节以函数粒度进行了分隔，新增了大量函数代码节以及重定位节。</li>
+</ol>
+<p>本节中实例均来自 bfq.ko。以下是 linux 5.10 中的 ELF 头的定义：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* --------- include/upai/linux/elf.h:203 ---------*/</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> EI_NIDENT	16</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">elf64_hdr</span> &#123;</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">char</span>	e_ident[EI_NIDENT];	<span class="comment">/* ELF &quot;magic number&quot; */</span></span><br><span class="line">  Elf64_Half e_type;</span><br><span class="line">  Elf64_Half e_machine;</span><br><span class="line">  Elf64_Word e_version;</span><br><span class="line">  Elf64_Addr e_entry;		<span class="comment">/* Entry point virtual address */</span></span><br><span class="line">  Elf64_Off e_phoff;		<span class="comment">/* Program header table file offset */</span></span><br><span class="line">  Elf64_Off e_shoff;		<span class="comment">/* Section header table file offset */</span></span><br><span class="line">  Elf64_Word e_flags;</span><br><span class="line">  Elf64_Half e_ehsize;</span><br><span class="line">  Elf64_Half e_phentsize;</span><br><span class="line">  Elf64_Half e_phnum;</span><br><span class="line">  Elf64_Half e_shentsize;</span><br><span class="line">  Elf64_Half e_shnum;</span><br><span class="line">  Elf64_Half e_shstrndx;</span><br><span class="line">&#125; Elf64_Ehdr;</span><br></pre></td></tr></table></figure>
+
+<p><strong>字段解释</strong></p>
+<ul>
+<li><p><code>e_ident</code> 含前 16 个字节，可细分成 class、data、version 等字段。前 4 个字节点为 “ELF” 关键字，由此判断当前文件是否是 ELF 格式；</p>
+<p>在 bfq.ko 中，<code>e_ident</code> 字段的值显示为：<code>Magic:  7f 45 4c 46 02 01 01 00 00 00 00 00 00 00 00 00</code>，其中前四个字节为 ELF 文件的标识。</p>
+</li>
+<li><p><code>e_type</code> 表示具体 ELF 类型，可重定位文件&#x2F;可执行文件&#x2F;共享库文件；</p>
+<p>linux 5.10 可处理的 ELF 文件的文件类型主要有四种：可重定位文件，可执行文件，共享目标文件和核心文件。以下是具体的定义：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* --------- include/upai/linux/elf.h:65 ---------*/</span></span><br><span class="line"><span class="comment">/* These constants define the different elf file types */</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> ET_NONE   0          <span class="comment">// 无文件类型</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> ET_REL    1          <span class="comment">// 可重定位文件</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> ET_EXEC   2          <span class="comment">// 可执行文件</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> ET_DYN    3          <span class="comment">// 共享目标文件</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> ET_CORE   4          <span class="comment">// 核心文件</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> ET_LOPROC 0xff00     <span class="comment">// 特定于处理器</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> ET_HIPROC 0xffff     <span class="comment">// 特定于处理器</span></span></span><br></pre></td></tr></table></figure>
+
+<p>其中，从 <code>ET_LOPROC</code> 到 <code>ET_HIPROC</code> 之间的值（包括这两个值）保留用于特定于处理器的语义。其他值保留供将来使用。</p>
+<p>在 bfq.ko 中，<code>e_type</code> 字段的值为：<code>Type: REL (Relocatable file)</code>，表明内核模块文件为可重定位文件。</p>
+</li>
+<li><p><code>e_machine</code> 表示执行的机器平台；该字段指定了独立文件所需的体系结构。</p>
+<p>在 bfq.ko 中，<code>e_machine</code> 字段为：<code>Machine: AArch64</code>。</p>
+</li>
+<li><p><code>e_version</code> 表示文件版本号，0 表示无效版本，1 为初始版本号；</p>
+<p>该版本可以在修改文件后手动设置，bfq.ko 在编译时默认设置 <code>e_version</code> 为 1。</p>
+</li>
+<li><p><code>e_entry</code> 表示程序入口函数地址，系统首先将控制权转移到的虚拟地址，从而启动进程。如果文件没有关联的入口点，则此成员值为零；</p>
+<p>可重定位文件 bfq.ko 并不会独立装载并运行，其中没有程序入口，因此 <code>e_entry</code> 为 0x0。</p>
+</li>
+<li><p><code>e_phoff</code> 表示程序头表 program header table 在文件内的偏移位置；bfq.ko 没有程序头表，则该值为 0x0。</p>
+</li>
+<li><p><code>e_shoff</code> 表示节头表 section header table在文件内的偏移位置；bfq.ko 的节头表位置为：<code>Start of section headers: 1986848 (bytes into file)</code>。</p>
+</li>
+<li><p><code>e_flags</code> 表示与 CPU 处理器架构相关的信息；bfq.ko 并没有特殊设置该字段，置为 0x0。</p>
+</li>
+<li><p><code>e_ehsize</code> 表示本 ELF header 自身的长度，bfq.ko 为 64 个字节。如果本文件含有程序头表，则在 ELF 头之后会紧跟着程序头表。bfq.ko 则是紧跟着首个节 <code>.note.gnu.build-id</code>。</p>
+</li>
+<li><p><code>e_phentsize</code> 表示程序头表 program header table 中每个元素的大小，bfq.ko 没有程序头表则该字段为 0。</p>
+</li>
+<li><p><code>e_phnum</code> 表示 program header table 中元素个数，bfq.ko 为 0 个。</p>
+</li>
+<li><p><code>e_shentsize</code> 表示 section header table 中每个元素的大小，bfq.ko 为 64 个字节；</p>
+</li>
+<li><p><code>e_shnum</code> 表示 section header table 中元素的个数，这里为 376 个；</p>
+</li>
+<li><p><code>e_shstrndx</code> 对应 section header string table index，描述各 section 名称的 string table 作为一个节保存在 ELF 文件中，该节在 section header table 中的下标为 e_shstrndx。bfq.ko 中的 string table 位于第 376 节，节头表中的下标为 375，e_shstrndx 值为 375：<code> Section header string table index: 375</code>。</p>
+</li>
+</ul>
+<h2 id="4-节头表"><a href="#4-节头表" class="headerlink" title="4. 节头表"></a>4. 节头表</h2><p>ELF 头的 <code>e_shoff</code> 成员表示从文件的起始位置到节头表的字节偏移。<code>e_shnum</code> 成员表示节头表包含的项数。<code>e_shentsize</code> 成员表示每一项的大小（以字节为单位）。</p>
+<p>节包含目标文件中除了 ELF 头、程序头表和节头表以外的所有信息。同时，目标文件中的各节还满足多个条件：</p>
+<ul>
+<li>目标文件中的每一节有仅有一个节头。可能会有节头存在但节不存在的情况。</li>
+<li>一个单独节在文件中占用可能为空。</li>
+<li>文件中的各节不能重叠。文件中的字节不能位于多个节中。</li>
+<li>目标文件可以包含非活动空间。各种头和节可能不会包括目标文件中的每个字节。</li>
+</ul>
+<p>修改过的 bfq.ko 含有相当多的节，这里列出与标准 ELF 文件有区别的一系列节：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">There are 390 section headers, starting at offset 0x20fd70:</span><br><span class="line"></span><br><span class="line">Section Headers:</span><br><span class="line">  [Nr] Name              Type     Address           Offset   Size EntSize Flags Link Info Align</span><br><span class="line">  [ 0]                   NULL     0000000000000000  00000000 0    0       0     0    0</span><br><span class="line">  [ 1] .note.gnu.build-i NOTE     0000000000000000  00000040 24   0       A     0    0    4</span><br><span class="line">  [ 2] .text             PROGBITS 0000000000000000  00000064 0    0       AX    0    0    1</span><br><span class="line">  [ 3] .trampoline.text  PROGBITS 0000000000000000  00000068 4c   0       AX    0    0    8</span><br><span class="line">  [ 4] .rela.trampoline. RELA     0000000000000000  000fa550 48   18      I     387  3    8</span><br><span class="line">  [ 5] .text.bfq_asymmet PROGBITS 0000000000000000  000000b8 a4   0       AX    0    0    8</span><br><span class="line">  [ 6] .text.bfq_has_wor PROGBITS 0000000000000000  00000160 44   0       AX    0    0    8</span><br><span class="line">  [ 7] .trampoline.text. PROGBITS 0000000000000000  000001a8 4c   0       AX    0    0    8</span><br><span class="line">  [ 8] .rela.trampoline. RELA     0000000000000000  000fa598 48   18      I     387  7    8</span><br><span class="line">  [ 9] .trampoline.text. PROGBITS 0000000000000000  000001f8 4c   0       AX    0    0    8</span><br><span class="line">  [10] .rela.trampoline. RELA     0000000000000000  000fa5e0 48   18      I     387  9    8</span><br><span class="line">  [11] .text.bfq_bfqq_sa PROGBITS 0000000000000000  00000248 fc   0       AX    0    0    8</span><br><span class="line">  [12] .rela.text.bfq_bf RELA     0000000000000000  000fa628 48   18      I     387  11   8</span><br><span class="line">  ......</span><br><span class="line">  [387] .symtab          SYMTAB   0000000000000000  000f4418 4818 18            388  573  8</span><br><span class="line">  [388] .strtab          STRTAB   0000000000000000  000f8c30 191b 0             0     0   1</span><br></pre></td></tr></table></figure>
+
+<p>这些节中包含了：函数 bfq_asymmetric_scenario() 构成的节，以及它的重定位表和 trampoline 节；函数 bfq_has_work() 构成的节，以及它的重定位表和 trampoline 节；符号表节；字符串表节。</p>
+<p><code>Link</code> 字段在各个重定位表节和符号表节中不为 0，表示了该节依赖其他节的节号。可见重定位表依赖符号表，符号表又依赖字符串表，因此收录了符号和字符串表两个节。</p>
+<p>与原 bfq.ko 的区别在于：</p>
+<ol>
+<li>将原 bfq.ko 中的 .text 节按函数粒度分割，所有函数均单独成节，其节名为 .text. + 函数名 + _real。</li>
+<li>将原 bfq.ko 中的 .rela.text 节分割，函数拥有自己的重定位节，其节名为 .rela.text. + 函数名 + real，只包含本函数内的重定位表项。</li>
+<li>每个函数都对应一个 trampoline 节，其节名为 .trampoline.text. + 函数名。</li>
+<li>trampoline 节拥有自己的重定位节，其节名为 .rela.trampoline.text. + 函数名。</li>
+</ol>
+<p>以下是 linux 5.10 中的节头表的定义：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* --------- include/upai/linux/elf.h:317 ---------*/</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">elf64_shdr</span> &#123;</span></span><br><span class="line">  Elf64_Word sh_name;		<span class="comment">/* Section name, index in string tbl */</span></span><br><span class="line">  Elf64_Word sh_type;		<span class="comment">/* Type of section */</span></span><br><span class="line">  Elf64_Xword sh_flags;		<span class="comment">/* Miscellaneous section attributes */</span></span><br><span class="line">  Elf64_Addr sh_addr;		<span class="comment">/* Section virtual addr at execution */</span></span><br><span class="line">  Elf64_Off sh_offset;		<span class="comment">/* Section file offset */</span></span><br><span class="line">  Elf64_Xword sh_size;		<span class="comment">/* Size of section in bytes */</span></span><br><span class="line">  Elf64_Word sh_link;		<span class="comment">/* Index of another section */</span></span><br><span class="line">  Elf64_Word sh_info;		<span class="comment">/* Additional section information */</span></span><br><span class="line">  Elf64_Xword sh_addralign;	<span class="comment">/* Section alignment */</span></span><br><span class="line">  Elf64_Xword sh_entsize;	<span class="comment">/* Entry size if section holds table */</span></span><br><span class="line">&#125; Elf64_Shdr;</span><br></pre></td></tr></table></figure>
+
+<p><strong>字段解释</strong></p>
+<ul>
+<li><p><code>sh_name</code> 节的名称。此成员值是节头字符串表节的索引，用于指定以空字符结尾的字符串的位置。</p>
+</li>
+<li><p><code>sh_type</code> 用于将节的内容和语义分类。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* --------- include/upai/linux/elf.h:267 ---------*/</span></span><br><span class="line"><span class="comment">/* sh_type */</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_NULL	0                    <span class="comment">// 将节头标识为无效。此节头没有关联的节。</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_PROGBITS	1                <span class="comment">// 由程序定义的信息，该节内的格式和含义完全由程序确定。</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_SYMTAB	2                  <span class="comment">// 表示该节为符号表节。</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_STRTAB	3                  <span class="comment">// 字符串表节，目标文件可以含有多个字符串表节。</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_RELA	4                    <span class="comment">// 标识包含显式加数的重定位项，如 32 位目标文件类的 Elf32_Rela 类型。</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_HASH	5                    <span class="comment">// 符号散列表。动态链接的目标文件必须包含符号散列表。</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_DYNAMIC	6                  <span class="comment">// 保存动态链接信息的节。目标文件只能有一个动态节。</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_NOTE	7                    <span class="comment">// 以字符形式或某种约定方法保存文件信息的节。</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_NOBITS	8                  <span class="comment">// 在文件中不占用任何空间，但在其他方面与 SHT_PROGBITS 类似的节。</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_REL		9                    <span class="comment">// 不包含显式加数的重定位项，如 32 位目标文件类的 Elf32_Rel 类型。</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_SHLIB	10                   <span class="comment">// 未指定语义的保留节。</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_DYNSYM	11                 <span class="comment">// 区别于符号表节，只包含动态链接符号信息的节。</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_NUM		12</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_LOPROC	0x70000000</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_HIPROC	0x7fffffff</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_LOUSER	0x80000000</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHT_HIUSER	0xffffffff</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>sh_flags</code> 用于说明节的部分属性。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* --------- include/upai/linux/elf.h:286 ---------*/</span></span><br><span class="line"><span class="comment">/* sh_flags */</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHF_WRITE		0x1                <span class="comment">// 在进程执行过程中应可写的节。</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHF_ALLOC		0x2                <span class="comment">// 在进程执行过程中占用内存的节。一些控制节不位于目标文件的内存映像中则无此标志位。</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHF_EXECINSTR		0x4            <span class="comment">// 包含可执行计算机指令的节。</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHF_RELA_LIVEPATCH	0x00100000</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHF_RO_AFTER_INIT	0x00200000</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> SHF_MASKPROC		0xf0000000     <span class="comment">// 此掩码中包括的所有位都保留用于特定于处理器的语义。</span></span></span><br></pre></td></tr></table></figure>
+
+<p>关于 <code>SHF_RELA_LIVEPATCH</code>：本节不是针对模块加载程序的，而是针对活动修补程序的，在 kernel&#x2F;module.c 中会对有该标志的节进行特殊处理。在加载模块时，加载器在重定位之前（即将函数加载到内核空间）检查是否设置了此标志。如果含有此标志，则跳过该节的重定位。</p>
+<p>关于 <code>SHF_RO_AFTER_INIT</code>：在内核模块初始化后之后使用此标志标记的节权限修改为只读。</p>
+<p>在 readelf 中可以查看更多类型的节属性，例如：M（merge），S（strings），I（info），L（link order），O（extra OS processing required），G（group），T（TLS）。但是这些节属性并不会被 linux 识别和处理。</p>
+</li>
+<li><p><code>sh_addr</code> 如果节显示在进程的内存映像中，则此成员会指定节的第一个字节所在的地址。否则，此成员值为零。根据段（segment）的定义可以确定某个节被加载进内存映像中的位置。</p>
+</li>
+<li><p><code>sh_offset</code> 从文件的起始位置到节中第一个字节的字节偏移。对于 <code>SHT_NOBITS</code> 节，此成员表示文件中的概念性偏移，因为该节在文件中不占用任何空间。</p>
+</li>
+<li><p><code>sh_size</code> 节的大小（以字节为单位）。除非节类型为 <code>SHT_NOBITS</code>，否则该节将在文件中占用 <code>sh_size</code> 个字节。<code>SHT_NOBITS</code> 类型的节大小可以不为零，但该节在文件中不占用任何空间。</p>
+</li>
+<li><p><code>sh_link</code> 节头表索引链接，其含义依赖于节类型，表示该节需要哪个其他节辅助解析本节内容。例如重定位表节的 <code>sh_link</code> 表示关联的符号表在节头表中的索引。</p>
+</li>
+<li><p><code>sh_info</code> 额外信息，其含义同样依赖于节类型。如果此节头的 <code>sh_flags</code> 字段包含属性 <code>SHF_INFO_LINK</code>，则此成员表示节头表索引。</p>
+</li>
+<li><p><code>sh_addralign</code> 一些节具有地址对齐约束。例如，如果某节包含双字，则系统必须确保整个节双字对齐。在此情况下，<code>sh_addr</code> 的值在以 <code>sh_addralign</code> 的值为模数进行取模时，同余数必须等于 <code>0</code>。当前，仅允许使用 <code>0</code> 和 2 的正整数幂。值 <code>0</code> 和 <code>1</code> 表示节没有对齐约束。</p>
+</li>
+<li><p><code>sh_entsize</code> 一些节包含固定大小的项的表，如符号表。对于这样的节，此成员会指定每一项的大小（以字节为单位）。如果节不包含固定大小的项的表，则此成员值为零。</p>
+</li>
+</ul>
+<h2 id="5-重定位节"><a href="#5-重定位节" class="headerlink" title="5. 重定位节"></a>5. 重定位节</h2><p>重定位是连接符号引用与符号定义的过程。例如，程序调用函数时，关联的调用指令必须在执行时将控制权转移到正确的目标地址。可重定位文件必须包含说明如何修改其节内容的信息。通过此信息，可执行文件和共享目标文件可包含进程的程序映像的正确信息。重定位项即是这些数据。</p>
+<p>在 bfq.ko 中每个函数节和每个 trampoline 节均拥有自己的重定位节，以下分别给出函数 bfq_reset_rate_computation()、trampoline 节 .trampolines.text.bfq_init_queue 的重定位节内容：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">Relocation section &#x27;.rela.text.bfq_reset_rate_computation&#x27; at offset 0xfa670 contains 8 entries:</span><br><span class="line">  Offset          Info           Type           Sym. Value    Sym. Name + Addend</span><br><span class="line">00000000001c  02dd0000011b R_AARCH64_CALL26  0000000000000000 ktime_get + 0</span><br><span class="line">000000000040  02490000011b R_AARCH64_CALL26  0000000000000000 __rcu_read_lock + 0</span><br><span class="line">000000000050  029d0000011b R_AARCH64_CALL26  0000000000000000 __rcu_read_unlock + 0</span><br><span class="line">000000000064  02490000011b R_AARCH64_CALL26  0000000000000000 __rcu_read_lock + 0</span><br><span class="line">000000000078  00d300000113 R_AARCH64_ADR_PRE 0000000000000000 .rodata.str1.8 + 0</span><br><span class="line">000000000080  00d300000115 R_AARCH64_ADD_ABS 0000000000000000 .rodata.str1.8 + 0</span><br><span class="line">00000000008c  02810000011b R_AARCH64_CALL26  0000000000000000 __trace_note_message + 0</span><br><span class="line">000000000090  029d0000011b R_AARCH64_CALL26  0000000000000000 __rcu_read_unlock + 0</span><br><span class="line"></span><br><span class="line">Relocation section &#x27;.rela.trampolines.text.bfq_init_queue&#x27; at offset 0xfa5e0 contains 1 entries:</span><br><span class="line">  Offset          Info           Type           Sym. Value    Sym. Name + Addend</span><br><span class="line">000000000030  02c80000011b R_AARCH64_CALL26  0000000000000000 bfq_init_queue_real + 0</span><br></pre></td></tr></table></figure>
+
+<p>重定位节的命名规则是 <code>.rela</code> + 被重定位节名。函数 bfq_reset_rate_computation() 的节名为 <code>.text.bfq_reset_rate_computation</code>，则它的重定位节名为 <code>.rela.text.bfq_reset_rate_computation</code>。这一命名规则与标准 ELF 文件保持一致。根据这一命名规则，可以确定重定位节重定位的对象。</p>
+<p>与原 bfq.ko 的区别在于：</p>
+<ol>
+<li>函数 bfq_reset_rate_computation() 的重定位节由原先代码节 .text 的重定位节 .rela.text 分割而来，包含了函数 bfq_reset_rate_computation() 中的所有重定位表项。</li>
+<li>Trampoline 的重定位节为新增节。其中重定位表项为向 real 函数的跳转指令。由于 trampoline 节中跳转指令是固定的，所以重定位类型也固定为 R_AARCH64_CALL26。</li>
+</ol>
+<p>重定位（表）节由若干重定位项构成，后者具有以下结构：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* --------- include/upai/linux/elf.h:178 ---------*/</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">elf64_rela</span> &#123;</span></span><br><span class="line">  Elf64_Addr r_offset;	<span class="comment">/* Location at which to apply the action */</span></span><br><span class="line">  Elf64_Xword r_info;	<span class="comment">/* index and type of relocation */</span></span><br><span class="line">  Elf64_Sxword r_addend;	<span class="comment">/* Constant addend used to compute value */</span></span><br><span class="line">&#125; Elf64_Rela;</span><br></pre></td></tr></table></figure>
+
+<p>由于 aarch64 仅使用 rela，所以这里也只给出 elf64_rela 在 linux 中的定义。</p>
+<p><strong>字段解释</strong></p>
+<ul>
+<li><p><code>r_offset</code> 指定应用重定位操作的位置。不同的目标文件对于此成员的解释会稍有不同。对于可重定位文件，该值表示重定位操作位置在被重定位节中的偏移。</p>
+</li>
+<li><p><code>r_info</code> 指定必须对其进行重定位的符号表索引以及要应用的重定位类型。例如，调用指令的重定位项包含所调用的函数的符号表索引。如果索引是未定义的符号索引 <code>STN_UNDEF</code>，则重定位将使用零作为符号值。</p>
+<p>在 elf.h 中定义了两个宏用于提取 <code>r_info</code> 中的符号表索引以及重定位类型：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* --------- include/upai/linux/elf.h:159 ---------*/</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> ELF64_R_SYM(i)			((i) &gt;&gt; 32)</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> ELF64_R_TYPE(i)			((i) &amp; 0xffffffff)</span></span><br></pre></td></tr></table></figure>
+
+<p>以 <code>.rela.text.bfq_reset_rate_computation</code> 节中的首个重定位表项为例，<code>r_info</code> 值为 0x02dd0000011b，表示重定位的符号在符号表中的索引为 0x02dd，重定位类型为 0x0000011b 即 R_AARCH64_CALL26。在重定位表中的 0x02dd&#x3D;733 也可以找到符号 ktime_get 的定义：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Symbol table &#x27;.symtab&#x27; contains 769 entries:</span><br><span class="line">   Num:    Value          Size Type    Bind   Vis      Ndx Name</span><br><span class="line">   ......</span><br><span class="line">   733: 0000000000000000     0 NOTYPE  GLOBAL DEFAULT  UND ktime_get</span><br><span class="line">   ......</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>r_addend</code> 指定常量加数，用于计算将存储在可重定位字段中的值。</p>
+</li>
+</ul>
+<h2 id="6-符号表节"><a href="#6-符号表节" class="headerlink" title="6. 符号表节"></a>6. 符号表节</h2><p>目标文件的符号表包含符号定义和符号引用所需的信息。符号表索引是此数组的下标。</p>
+<p>bfq.ko 中修改并新增了部分符号表项，举例如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Symbol table &#x27;.symtab&#x27; contains 769 entries:</span><br><span class="line">   Num:    Value          Size Type    Bind   Vis      Ndx Name</span><br><span class="line">   618: 0000000000000000    76 FUNC    GLOBAL DEFAULT    9 bfq_init_queue</span><br><span class="line">   636: 0000000000000000     8 FUNC    GLOBAL HIDDEN   190 bfq_prepare_request_real</span><br><span class="line">   712: 0000000000000000   916 FUNC    GLOBAL HIDDEN   193 bfq_init_queue_real  </span><br><span class="line">   759: 0000000000000000    76 FUNC    GLOBAL DEFAULT    7 bfq_prepare_request</span><br></pre></td></tr></table></figure>
+
+<p>与原 bfq.ko 的区别在于：</p>
+<ol>
+<li><p>定义类型为 FUNC 的符号 bfq_init_queue 的节下标为 9，指向 .trampoline.text.bfq_init_queue 节。这使得所有对函数 bfq_init_queue() 的调用均被修改指向了 trampoline 函数。符号 bfq_prepare_request 同理。</p>
+</li>
+<li><p>新增了符号 bfq_init_queue_real，这个符号定义的节下标 Ndx 为 193，指向 .text.bfq_init_queue_real。同时，该符号是 bfq_init_queue 的 trampoline 的跳转目的地。这一新增的符号可见性 Vis 为 HIDDEN，其他模块无法直接访问。符号 bfq_prepare_request_real 同理。</p>
+<p>原 bfq.ko 的符号表中符号 bfq_init_queue 的定义类似于：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Symbol table &#x27;.symtab&#x27; contains 769 entries:</span><br><span class="line">   Num:    Value          Size Type    Bind   Vis      Ndx Name</span><br><span class="line">   618: 0000000000000000   916 FUNC    GLOBAL DEFAULT  193 bfq_init_queue</span><br></pre></td></tr></table></figure>
+
+<p>符号定义节下标 Ndx 为 193，指向 .text.bfq_init_queue，可见性 Vis 为 DEFAULT，大小 Size 为 916 字节。</p>
+</li>
+</ol>
+<p>以下是 linux 5.10 中的符号表的定义：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* --------- include/upai/linux/elf.h:193 ---------*/</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">elf64_sym</span> &#123;</span></span><br><span class="line">  Elf64_Word st_name;		<span class="comment">/* Symbol name, index in string tbl */</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">char</span>	st_info;	<span class="comment">/* Type and binding attributes */</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">char</span>	st_other;	<span class="comment">/* No defined meaning, 0 */</span></span><br><span class="line">  Elf64_Half st_shndx;		<span class="comment">/* Associated section index */</span></span><br><span class="line">  Elf64_Addr st_value;		<span class="comment">/* Value of the symbol */</span></span><br><span class="line">  Elf64_Xword st_size;		<span class="comment">/* Associated symbol size */</span></span><br><span class="line">&#125; Elf64_Sym;</span><br></pre></td></tr></table></figure>
+
+<p><strong>字段解释</strong></p>
+<ul>
+<li><p><code>st_name</code> 目标文件的符号字符串表的索引，其中包含符号名称的字符表示形式。如果该值为非零，则表示指定符号名称的字符串表索引。否则，符号表项没有名称。</p>
+</li>
+<li><p><code>st_value</code> 关联符号的值。在可重定位文件中，<code>st_value</code> 包含所定义符号的节偏移。<code>st_value</code> 表示从 <code>st_shndx</code> 所标识的节的起始位置的偏移。</p>
+</li>
+<li><p><code>st_size</code> 表示符号的大小。</p>
+</li>
+<li><p><code>st_info</code> 表示符号的类型和绑定属性。在 elf.h 中有如下定义：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> ELF64_ST_BIND(x)	((x) &gt;&gt; 4)</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> ELF64_ST_TYPE(x)	(((unsigned int) x) &amp; 0xf)</span></span><br></pre></td></tr></table></figure>
+
+<p>因此 <code>st_info</code> 的高 4 位表示绑定属性，低四位表示类型属性。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* --------- include/upai/linux/elf.h:119 ---------*/</span></span><br><span class="line"><span class="comment">/* This info is needed when parsing the symbol table */</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> STB_LOCAL  0  <span class="comment">// 局部符号。这些符号在包含其定义的目标文件的外部不可见。名称相同的局部符号可存在于多个文件中而不会相互干扰。</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> STB_GLOBAL 1  <span class="comment">// 全局符号。这些符号对于合并的所有目标文件都可见。一个文件的全局符号定义满足另一个文件对相同全局符号的未定义引用。</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> STB_WEAK   2  <span class="comment">// 弱符号。这些符号与全局符号类似，但其定义具有较低的优先级。</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> STT_NOTYPE  0 <span class="comment">// 未指定符号类型。</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> STT_OBJECT  1 <span class="comment">// 此符号与变量、数组等数据目标文件关联。</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> STT_FUNC    2 <span class="comment">// 此符号与函数或其他可执行代码关联。</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> STT_SECTION 3 <span class="comment">// 此符号与节关联。此类型的符号表各项主要用于重定位，并且通常具有 STB_LOCAL 绑定。</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> STT_FILE    4 <span class="comment">// 通常，符号的名称会指定与目标文件关联的源文件的名称。</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> STT_COMMON  5 <span class="comment">// 此符号标记未初始化的通用块。此符号的处理与 STT_OBJECT 的处理完全相同。</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> STT_TLS     6 <span class="comment">// 此符号指定线程局部存储实体。定义后，此符号可为符号指明指定的偏移，而不是实际地址。</span></span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>st_shndx</code>  所定义的每一个符号表项都与某节有关。此成员包含相关节头表索引。</p>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ELF/" rel="tag"># ELF</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/07/07/VSCode%20%E8%BF%9E%E6%8E%A5%E6%9C%8D%E5%8A%A1%E5%99%A8/" rel="prev" title="VSCode 连接服务器">
+      <i class="fa fa-chevron-left"></i> VSCode 连接服务器
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2023/07/12/tmux%20%E4%BD%BF%E7%94%A8%E5%BF%83%E5%BE%97/" rel="next" title="tmux 使用心得">
+      tmux 使用心得 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-ELF-%E6%96%87%E4%BB%B6%E5%B8%83%E5%B1%80"><span class="nav-number">1.</span> <span class="nav-text">1. ELF 文件布局</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B"><span class="nav-number">2.</span> <span class="nav-text">2. 基本数据类型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-ELF-%E5%A4%B4"><span class="nav-number">3.</span> <span class="nav-text">3. ELF 头</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E8%8A%82%E5%A4%B4%E8%A1%A8"><span class="nav-number">4.</span> <span class="nav-text">4. 节头表</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%8A%82"><span class="nav-number">5.</span> <span class="nav-text">5. 重定位节</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-%E7%AC%A6%E5%8F%B7%E8%A1%A8%E8%8A%82"><span class="nav-number">6.</span> <span class="nav-text">6. 符号表节</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">kuankuan</p>
+  <div class="site-description" itemprop="description">行</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">5</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">categories</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">kuankuan</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
