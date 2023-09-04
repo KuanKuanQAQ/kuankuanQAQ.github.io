@@ -28,7 +28,7 @@
 <meta property="og:description" content="还记得大概半年前刚参与内核项目时，读了各种网上的环境配置教程，一头雾水，怪罪他们语焉不详。现在看来，那些网上的资料量大管饱，和我目前所知也相差无几。这种逐渐发生的改变颇为神奇。">
 <meta property="og:locale">
 <meta property="article:published_time" content="2023-07-12T12:13:58.232Z">
-<meta property="article:modified_time" content="2023-08-30T08:36:00.872Z">
+<meta property="article:modified_time" content="2023-09-04T02:20:46.344Z">
 <meta property="article:author" content="kuankuan">
 <meta property="article:tag" content="Linux">
 <meta property="article:tag" content="qemu">
@@ -184,7 +184,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-08-30 16:36:00" itemprop="dateModified" datetime="2023-08-30T16:36:00+08:00">2023-08-30</time>
+                <time title="Modified: 2023-09-04 10:20:46" itemprop="dateModified" datetime="2023-09-04T10:20:46+08:00">2023-09-04</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -231,23 +231,22 @@
 <figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line"> <span class="attr">&quot;proxies&quot;</span><span class="punctuation">:</span></span><br><span class="line"> <span class="punctuation">&#123;</span></span><br><span class="line">   <span class="attr">&quot;default&quot;</span><span class="punctuation">:</span></span><br><span class="line">   <span class="punctuation">&#123;</span></span><br><span class="line">     <span class="attr">&quot;httpProxy&quot;</span><span class="punctuation">:</span> <span class="string">&quot;http://10.130.152.xxx:7890&quot;</span><span class="punctuation">,</span></span><br><span class="line">     <span class="attr">&quot;httpsProxy&quot;</span><span class="punctuation">:</span> <span class="string">&quot;http://10.130.152.xxx:7890&quot;</span><span class="punctuation">,</span></span><br><span class="line">     <span class="attr">&quot;noProxy&quot;</span><span class="punctuation">:</span> <span class="string">&quot;localhost,127.0.0.1,.example.com&quot;</span></span><br><span class="line">   <span class="punctuation">&#125;</span></span><br><span class="line"> <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
 
 <p>最后重启生效：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo systemctl daemon-reload</span><br><span class="line">sudo systemctl restart docker</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">➜  ~ sudo systemctl daemon-reload</span><br><span class="line">➜  ~ sudo systemctl restart docker</span><br></pre></td></tr></table></figure>
 
 <p>我尚不知道在 docker 启动后如何修改这一代理。</p>
 <h2 id="3-启动-container"><a href="#3-启动-container" class="headerlink" title="3. 启动 container"></a>3. 启动 container</h2><p>拉取基础镜像，并启动：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo docker pull ubuntu:18.04</span><br><span class="line">sudo docker run -i -t ubuntu:18.04 /bin/bash</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">➜  ~ sudo docker pull ubuntu:18.04</span><br><span class="line">➜  ~ sudo docker run -it ubuntu:18.04 bash</span><br></pre></td></tr></table></figure>
 
-<p>已经配置了代理所以也就不用为 apt-get 换源了。</p>
-<p>查看正在运行的容器的 container id，根据这一 id 向 docker 内传入内核源代码以及 adelie 的补丁文件。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">docker ps</span><br><span class="line">docker <span class="built_in">cp</span> /home/lirunkuan/adelie-kaslr-linux-5.0.4/linux-5.0.4/ f5fa1b51d70c:~/</span><br><span class="line">docker <span class="built_in">cp</span> /home/lirunkuan/adelie-kaslr-linux-5.0.4/source-main/ f5fa1b51d70c:~/</span><br><span class="line">docker <span class="built_in">cp</span> /home/lirunkuan/busybox-1.36.1/ f5fa1b51d70c:~/</span><br></pre></td></tr></table></figure>
-
-<p>进入 docker：</p>
+<p>已经配置了代理所以也就不用为 apt-get 换源了。<code>run</code> 指令启动了容器并运行 bash。此时当你退出这个容器，容器状态就会变成 exited。使用 <code>docker ps -a</code> 查看正在运行的容器的 container id，根据这一 id 重新进入 docker：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="built_in">exec</span> -it f5fa1b51d70c bash</span><br></pre></td></tr></table></figure>
 
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> /path/to/local/dir</span><br><span class="line">docker run -v /path/to/local/dir:/path/to/container/dir -it adelie:v0 /bin/bash</span><br></pre></td></tr></table></figure>
+<p>以上的 docker 启动方法并没有创建文件夹映射。以下是文件夹映射的方法 <code>-v</code>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> /path/to/local/dir</span><br><span class="line">docker run -v /path/to/local/dir:/path/to/container/dir -it f5fa1b51d70c bash</span><br></pre></td></tr></table></figure>
 
-<p>其中 -v 加载本地目录 &#x2F;path&#x2F;to&#x2F;local&#x2F;dir 到容器的 &#x2F;path&#x2F;to&#x2F;container&#x2F;dir 中。这两个目录内容会始终保持一致。注意两个路径必须为绝对路径。&#x2F;path&#x2F;to&#x2F;container&#x2F;dir 不能为 &#x2F;root&#x2F;adelie-kaslr-linux-5.0.4。此后我们将 &#x2F;root&#x2F;adelie-kaslr-linux-5.0.4 复制到 &#x2F;path&#x2F;to&#x2F;container&#x2F;dir 中。这样编译只会占用本地目录 &#x2F;path&#x2F;to&#x2F;local&#x2F;dir。</p>
+<p>其中 -v 加载本地目录 &#x2F;path&#x2F;to&#x2F;local&#x2F;dir 到容器的 &#x2F;path&#x2F;to&#x2F;container&#x2F;dir 中。这两个目录内容会始终保持一致。注意两个路径必须为绝对路径。</p>
 <p>docker run 命令会从指定 image 启动一个 container，但会随 &#x2F;bin&#x2F;bash 的退出而退出。需要使用 docker start 命令重新启动该容器，此后再 docker exec 进入容器。</p>
+<p><strong>其他 docker 操作</strong></p>
+<p>重命名容器：<code>docker rename old_name new_name</code></p>
 <h2 id="4-编译-qemu"><a href="#4-编译-qemu" class="headerlink" title="4. 编译 qemu"></a>4. 编译 qemu</h2><p>apt 安装的 qemu 版本太低了，模拟不了 a57。</p>
 <p>下载最新的 qemu 8.0.2：<a target="_blank" rel="noopener" href="https://www.qemu.org/download/%E3%80%82">https://www.qemu.org/download/。</a></p>
 <p>注意在 container 中编译：</p>
@@ -262,7 +261,7 @@
 
 <p>编译好的内核为 arch&#x2F;arm64&#x2F;boot&#x2F;Image。</p>
 <blockquote>
-<p>以下过程比较繁琐，我将最终制作好的根文件系统放到了 git 中，有两个分支分别用于 x86-64 和 arm64：<a target="_blank" rel="noopener" href="https://github.com/KuanKuanQAQ/linux-rootfs/tree/main%E3%80%82%E5%A6%82%E6%9E%9C%E6%88%91%E7%9A%84%E6%A0%B9%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E8%83%BD%E7%94%A8%EF%BC%88%E6%88%91%E4%B9%9F%E4%B8%8D%E7%A1%AE%E5%AE%9A%E5%AE%83%E6%80%BB%E5%8F%AF%E7%94%A8%EF%BC%89%EF%BC%8C%E9%82%A3">https://github.com/KuanKuanQAQ/linux-rootfs/tree/main。如果我的根文件系统能用（我也不确定它总可用），那</a> busybox 也不用编译了，直接跳到第 5 节。</p>
+<p>以下过程比较繁琐，我将最终制作好的根文件系统放到了 git 中，有两个分支分别用于 x86-64 和 arm64：<a target="_blank" rel="noopener" href="https://github.com/KuanKuanQAQ/linux-rootfs/tree/main%E3%80%82%E5%A6%82%E6%9E%9C%E6%88%91%E7%9A%84%E6%A0%B9%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E8%83%BD%E7%94%A8%EF%BC%88%E6%88%91%E4%B9%9F%E4%B8%8D%E7%A1%AE%E5%AE%9A%E5%AE%83%E6%80%BB%E5%8F%AF%E7%94%A8%EF%BC%89%EF%BC%8C%E9%82%A3">https://github.com/KuanKuanQAQ/linux-rootfs/tree/main。如果我的根文件系统能用（我也不确定它总可用），那</a> busybox 也不用编译了，直接跳到第 8 节。</p>
 </blockquote>
 <h2 id="6-编译-busybox"><a href="#6-编译-busybox" class="headerlink" title="6. 编译 busybox"></a>6. 编译 busybox</h2><p>随便下了个 busybox 1.30.0：<a target="_blank" rel="noopener" href="https://busybox.net/downloads/%E3%80%82%E6%9C%80%E6%96%B0%E7%9A%84">https://busybox.net/downloads/。最新的</a> 1.36 应该也没问题。</p>
 <p>注意，busybox 也需要在 arm 架构下的 container 中重新编译，这样产生的各种文件才能在 arm 虚拟机里使用。</p>
@@ -304,7 +303,6 @@
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">➜  kernel-openEuler-22.03-LTS gdb</span><br></pre></td></tr></table></figure>
 
 <p>这时可以自动读取 vmlinux 中的符号，以及链接 target 1234，并打开源代码窗口。</p>
-<p>说实话 58.240.113.42 卡坏了，gdb 监听下 qemu 根本起不来。</p>
 <h2 id="10-加载内核模块"><a href="#10-加载内核模块" class="headerlink" title="10. 加载内核模块"></a>10. 加载内核模块</h2><p>在虚拟机中可以看到我们放入的两个 ko 内核模块文件：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@kuankuanQAQ ]<span class="comment"># ls</span></span><br><span class="line">bin        e1000e.ko  lib        proc       sys</span><br><span class="line">dev        etc        linuxrc    root       tmp</span><br><span class="line">e1000.ko   init       mnt        sbin       usr</span><br></pre></td></tr></table></figure>
 <p>使用 insmod 启动一个：</p>
