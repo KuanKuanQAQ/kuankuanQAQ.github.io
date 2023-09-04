@@ -27,14 +27,14 @@
 <meta property="og:site_name" content="kuankuan的博客">
 <meta property="og:description" content="ELF 文件格式汇总，主要是 linking view 下的 ELF 文件。">
 <meta property="og:locale">
-<meta property="og:image" content="http://example.com/2023/07/07/images/ELF%20%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F/ELF%20%E6%96%87%E4%BB%B6%E5%B8%83%E5%B1%80/Canvas%201.jpg">
-<meta property="og:image" content="http://example.com/2023/07/07/images/ELF%20%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F/%E6%9B%B4%E6%96%B0%E5%89%8D%E5%90%8E%20ELF%20%E6%96%87%E4%BB%B6%E5%B8%83%E5%B1%80%E5%AF%B9%E6%AF%94/Canvas%201.jpg">
+<meta property="og:image" content="http://example.com/2023/07/07/images/ELF%20%E6%96%87%E4%BB%B6%E5%B8%83%E5%B1%80.jpg">
+<meta property="og:image" content="http://example.com/2023/07/07/images/%E6%9B%B4%E6%96%B0%E5%89%8D%E5%90%8E%20ELF%20%E6%96%87%E4%BB%B6%E5%B8%83%E5%B1%80%E5%AF%B9%E6%AF%94.jpg">
 <meta property="article:published_time" content="2023-07-07T07:51:28.755Z">
-<meta property="article:modified_time" content="2023-09-04T08:19:08.856Z">
+<meta property="article:modified_time" content="2023-09-04T08:26:21.173Z">
 <meta property="article:author" content="kuankuan">
 <meta property="article:tag" content="ELF">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/2023/07/07/images/ELF%20%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F/ELF%20%E6%96%87%E4%BB%B6%E5%B8%83%E5%B1%80/Canvas%201.jpg">
+<meta name="twitter:image" content="http://example.com/2023/07/07/images/ELF%20%E6%96%87%E4%BB%B6%E5%B8%83%E5%B1%80.jpg">
 
 <link rel="canonical" href="http://example.com/2023/07/07/ELF%20%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F/">
 
@@ -184,7 +184,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-09-04 16:19:08" itemprop="dateModified" datetime="2023-09-04T16:19:08+08:00">2023-09-04</time>
+                <time title="Modified: 2023-09-04 16:26:21" itemprop="dateModified" datetime="2023-09-04T16:26:21+08:00">2023-09-04</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -225,7 +225,8 @@
 <li>核心转储文件（<code>core dump file</code>）</li>
 </ul>
 <p>可重定位文件用在链接阶段；可执行文件用在程序装载阶段；共享库则同时用在编译链接和装载阶段。使用于不同阶段的 ELF 文件有着不同的布局，如下图所示：</p>
-<img src="../images/ELF 文件格式/ELF 文件布局/Canvas 1.jpg" alt="Canvas 1" style="zoom:24%;" />
+<p>![](&#x2F;images&#x2F;ELF 文件布局.jpg)</p>
+<img src="../images/ELF 文件布局.jpg" alt="Canvas 1" style="zoom:24%;" />
 
 <p>从上图可见，ELF 格式文件整体可分为四大部分：</p>
 <ul>
@@ -239,7 +240,8 @@
 <p>定义在内核模块中的函数不会被直接调用，而是会被 trampoline 函数间接调用。每个函数均拥有自己的 trampoline 函数，来自内核、其他内核模块和本内核模块的函数调用均会首先调用 trampoline 函数，然后在 trampoline 函数中跳转至目标函数。Trampoline 函数不会被重随机。</p>
 <p>每个 trampoline 函数拥有自己的重定位表，用于重定位目标函数。在重随机时，根据所有节的装载位置，更新符号表中符号的定义位置。随后根据重定位表的信息，重写 trampoline 函数中的跳转目的地址。</p>
 <p>在 ELF 文件结构中，原先的 .text 节会以函数粒度分割为若干节，并且在 ELF 文件中新增与函数数量相同的 trampoline 节。每个 trampoline 节会紧跟一个重定位节，用于在重随机时重定位目标函数地址。同时在符号表中新增 trampoline 函数的定义，其符号名与原函数相同，原函数在符号表中增加名称后缀 <code>_real</code>，仅被 trampoline 函数直接调用。此外，节头表增加相应的节头表项，记录新增节的信息。以上 ELF 布局修改均由编译器插件实现，下图为更新前后 ELF 文件布局对比：</p>
-<img src="../images/ELF 文件格式/更新前后 ELF 文件布局对比/Canvas 1.jpg" alt="Canvas 1" style="zoom:24%;" />
+<p>![](&#x2F;images&#x2F;更新前后 ELF 文件布局对比.jpg)</p>
+<img src="../images/更新前后 ELF 文件布局对比.jpg" alt="Canvas 1" style="zoom:24%;" />
 
 <p>图中有颜色部分为对 ELF 文件的修改。橙色部分为代码节（text section）：在原 ELF 文件中，代码节含有所有函数；在修改后的 ELF 文件中，每个函数单独为一个节。紫色部分为重定位节：在原 ELF 文件中，代码节的重定位表为一个整体，形成一个节；在修改后的 ELF 文件中，每个函数构成的节均拥有一个自己的重定位节，其中记录了该函数代码节中需要重定位的目的地址。青色部分为新增的 trampoline 相关节，包括：trampoline 函数代码节，作为被调用函数的入口；trampoline 重定位节，负责对被调用函数进行重定位；符号表节，修改被调用函数定义位置，新增重随机函数符号的定义。</p>
 <h2 id="2-基本数据类型"><a href="#2-基本数据类型" class="headerlink" title="2. 基本数据类型"></a>2. 基本数据类型</h2><p>64 位 ELF 文件格式中涉及的基本数据类型如下：</p>
