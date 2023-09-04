@@ -20,20 +20,21 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="到网上一查，tmux 的指令成堆成片。查阅有余，实用不足。想要快速上手高效工具可能只需要几条指令而已。">
+  <meta name="description" content="GNU C 对标准 C 语言进行了扩展，在 GCC 中，对于全局符号而言，存在着强符号和弱符号之分。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="tmux 使用心得">
-<meta property="og:url" content="http://example.com/2023/07/12/tmux%20%E4%BD%BF%E7%94%A8%E5%BF%83%E5%BE%97/index.html">
+<meta property="og:title" content="C 中的强弱符号、强弱引用">
+<meta property="og:url" content="http://example.com/2023/06/12/C%20%E4%B8%AD%E7%9A%84%E5%BC%BA%E5%BC%B1%E7%AC%A6%E5%8F%B7%E3%80%81%E5%BC%BA%E5%BC%B1%E5%BC%95%E7%94%A8/index.html">
 <meta property="og:site_name" content="kuankuan的博客">
-<meta property="og:description" content="到网上一查，tmux 的指令成堆成片。查阅有余，实用不足。想要快速上手高效工具可能只需要几条指令而已。">
+<meta property="og:description" content="GNU C 对标准 C 语言进行了扩展，在 GCC 中，对于全局符号而言，存在着强符号和弱符号之分。">
 <meta property="og:locale">
-<meta property="article:published_time" content="2023-07-12T12:13:58.232Z">
-<meta property="article:modified_time" content="2023-08-30T07:52:31.263Z">
+<meta property="article:published_time" content="2023-06-12T07:15:31.873Z">
+<meta property="article:modified_time" content="2023-09-04T08:14:52.518Z">
 <meta property="article:author" content="kuankuan">
-<meta property="article:tag" content="tmux">
+<meta property="article:tag" content="C">
+<meta property="article:tag" content="GCC">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://example.com/2023/07/12/tmux%20%E4%BD%BF%E7%94%A8%E5%BF%83%E5%BE%97/">
+<link rel="canonical" href="http://example.com/2023/06/12/C%20%E4%B8%AD%E7%9A%84%E5%BC%BA%E5%BC%B1%E7%AC%A6%E5%8F%B7%E3%80%81%E5%BC%BA%E5%BC%B1%E5%BC%95%E7%94%A8/">
 
 
 <script id="page-configurations">
@@ -46,7 +47,7 @@
   };
 </script>
 
-  <title>tmux 使用心得 | kuankuan的博客</title>
+  <title>C 中的强弱符号、强弱引用 | kuankuan的博客</title>
   
 
 
@@ -151,7 +152,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/07/12/tmux%20%E4%BD%BF%E7%94%A8%E5%BF%83%E5%BE%97/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/06/12/C%20%E4%B8%AD%E7%9A%84%E5%BC%BA%E5%BC%B1%E7%AC%A6%E5%8F%B7%E3%80%81%E5%BC%BA%E5%BC%B1%E5%BC%95%E7%94%A8/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -164,7 +165,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          tmux 使用心得
+          C 中的强弱符号、强弱引用
         </h1>
 
         <div class="post-meta">
@@ -174,14 +175,14 @@
               </span>
               <span class="post-meta-item-text">Posted on</span>
 
-              <time title="Created: 2023-07-12 20:13:58" itemprop="dateCreated datePublished" datetime="2023-07-12T20:13:58+08:00">2023-07-12</time>
+              <time title="Created: 2023-06-12 15:15:31" itemprop="dateCreated datePublished" datetime="2023-06-12T15:15:31+08:00">2023-06-12</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-08-30 15:52:31" itemprop="dateModified" datetime="2023-08-30T15:52:31+08:00">2023-08-30</time>
+                <time title="Modified: 2023-09-04 16:14:52" itemprop="dateModified" datetime="2023-09-04T16:14:52+08:00">2023-09-04</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -189,7 +190,7 @@
               </span>
               <span class="post-meta-item-text">In</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Workflow/" itemprop="url" rel="index"><span itemprop="name">Workflow</span></a>
+                  <a href="/categories/Language/" itemprop="url" rel="index"><span itemprop="name">Language</span></a>
                 </span>
             </span>
 
@@ -211,54 +212,33 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>到网上一查，tmux 的指令成堆成片。查阅有余，实用不足。想要快速上手高效工具可能只需要几条指令而已。</p>
+        <p>GNU C 对标准 C 语言进行了扩展，在 GCC 中，对于<strong>全局符号</strong>而言，存在着强符号和弱符号之分。</p>
 <span id="more"></span>
 
-<h2 id="0-tmux-的拳头特性"><a href="#0-tmux-的拳头特性" class="headerlink" title="0. tmux 的拳头特性"></a>0. tmux 的拳头特性</h2><p>tmux 的拳头特性是维持会话（session）。这来自于 tmux 的 client-server 架构。</p>
-<p>tmux 会在后台开启一个服务器端，在这个服务器端里启动一个 session，往往这个 session 中运行了一个 shell。当然，shell 进而可以运行各种程序，那时 session 中就运行了那些程序。</p>
-<p>你通过 shell 可以连接 tmux 的服务器端，进入 tmux 建立的 session，看到程序的各种输出，并且也可以和这些进程交互。最重要的是，你可以随意断开与 tmux 服务器端的连接，这不会影响 tmux 建立的各种 session。它们不会因为你断开连接而关闭，其中的程序自然也会持续运行。</p>
-<p>这些程序可能是一个还需要再跑一周的实验，可能是一组 docker，也可能是你编辑到一半的 vim。当你重新打开 tmux 连接到一个 session 时，它们还都在那里，程序没有中断，docker 没有退出，vim 甚至还保存着剪切板中的内容。</p>
-<p>如果你的 tmux 是运行在远程主机上，那么就是更是一个标准的应用场景了。在你与远程主机断开连接后，tmux 的服务器端会继续运行在远程主机上，一切工作环境都保持原样，等待你下次连接。</p>
-<p>如果你有个同事，也在相同的远程主机上开发，你们甚至可以连接到同一个 tmux 服务器上，你们所做的所有修改会同步地在双方终端里显现。</p>
-<p>而这一切只需要你使用 tmux 开启一个 session：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tmux</span><br></pre></td></tr></table></figure>
+<h2 id="0-参考"><a href="#0-参考" class="headerlink" title="0. 参考"></a>0. 参考</h2><p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/downey-blog/p/10470674.html">https://www.cnblogs.com/downey-blog/p/10470674.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/yongdaimi/p/8084634.html">https://www.cnblogs.com/yongdaimi/p/8084634.html</a></p>
+<h2 id="1-强弱符号的概念"><a href="#1-强弱符号的概念" class="headerlink" title="1. 强弱符号的概念"></a>1. 强弱符号的概念</h2><p>本文编译器 GCC-8。</p>
+<p>GNU C 对标准 C 语言进行了扩展，在 GCC 中，对于<strong>全局符号</strong>而言，存在着强符号和弱符号之分。</p>
+<p>编译器默认<strong>函数</strong>和<strong>初始化了的全局变量</strong>为强符号（Strong Symbol），未初始化的全局变量为弱符号（Weak Symbol）。强符号之所以强，是因为它们拥有确切的数据，变量有值，函数有函数体；弱符号之所以弱，是因为它们还未被初始化，没有确切的数据。</p>
+<p>链接器会按照如下的规则处理被多次定义的强符号和弱符号：</p>
+<ol>
+<li>不允许强符号被多次定义，也即不同的目标文件中不能有同名的强符号；如果有多个强符号，那么链接器会报符号重复定义错误。</li>
+<li>如果一个符号在某个目标文件中是强符号，在其他文件中是弱符号，那么选择强符号。</li>
+<li>如果一个符号在所有的目标文件中都是弱符号，那么选择其中占用空间最大的一个。</li>
+</ol>
+<p>在 GCC 中，可以通过 <code>__attribute__((weak))</code> 来强制定义任何一个符号为弱符号。假设现在有下面的一段代码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">extern</span> <span class="type">int</span> ext;</span><br><span class="line"><span class="type">int</span> weak1;</span><br><span class="line"><span class="type">int</span> strong = <span class="number">100</span>;</span><br><span class="line">__attribute__((weak)) weak2 = <span class="number">2</span>;</span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h2 id="1-会话-session"><a href="#1-会话-session" class="headerlink" title="1. 会话 session"></a>1. 会话 session</h2><p>在介绍 tmux 的快捷键和指令之前，需要说明 tmux 的快捷键前缀。</p>
-<p>tmux 为了防止自己的快捷键和其他软件互相干扰，所以在使用所有快捷键前，都需要先按下快捷键前缀，再按下快捷键。tmux 的默认快捷键前缀是 ctrl+b。</p>
-<blockquote>
-<p>emacs 因为没有类似 vim 的模式设计和类似 tmux 的快捷键前缀设计，导致经常发生快捷键冲突。比如 MarkSet 命令默认绑定到 ctrl+space，和系统的输入法开关冲突。我不想修改软件快捷键的默认设置，于是就不再用 emacs 了QAQ。</p>
-</blockquote>
-<p>tmux 的每一条命令都可以以指令的方式或快捷键的方式执行，例如切换 session，可以使用 ctrl+b s，也可以使用：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tmux switch -t &lt;session_name&gt;</span><br></pre></td></tr></table></figure>
+<p>weak1 和 weak2 是弱符号，strong 和 main 是强符号，而 ext 既非强符号也非弱符号，它是一个外部变量。</p>
+<h2 id="2-多文件中的强弱符号"><a href="#2-多文件中的强弱符号" class="headerlink" title="2. 多文件中的强弱符号"></a>2. 多文件中的强弱符号</h2><p>以下是一个多文件编程的例子：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* main.c */</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="comment">//弱符号</span></span><br><span class="line">__attribute__((weak)) <span class="type">int</span> a = <span class="number">20</span>;</span><br><span class="line">__attribute__((weak)) <span class="type">void</span> <span class="title function_">func</span><span class="params">()</span>&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;C Language\n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="type">void</span> <span class="title function_">ext_func</span><span class="params">()</span>;</span><br><span class="line"><span class="comment">//外部符号</span></span><br><span class="line"><span class="keyword">extern</span> <span class="type">int</span> ext;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span>&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;a = %d\n&quot;</span>, a);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;ext = %d\n&quot;</span>, ext);</span><br><span class="line">    func();</span><br><span class="line">    ext_func();</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>我推荐除了少数几条进入 session 的命令使用指令的方式执行，其他所有命令都记忆并使用快捷键的方式。因为实际工作中并不总是可以输入指令，例如你在 vim 中或是在一个 docker 中，你就只能使用快捷键来切换 session。</p>
-<p>在你没有创建任何 session 前，需要先使用以下指令创建 session：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tmux</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* module.c */</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="comment">//强符号</span></span><br><span class="line"><span class="type">int</span> a = <span class="number">9999</span>;</span><br><span class="line"><span class="type">int</span> ext = <span class="number">11</span>;</span><br><span class="line"><span class="type">void</span> <span class="title function_">func</span><span class="params">()</span>&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;c.biancheng.net\n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="type">void</span> <span class="title function_">ext_func</span><span class="params">()</span>&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;This is ext_func().\n&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>或者使用：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tmux new -s &lt;session_name&gt;</span><br></pre></td></tr></table></figure>
+<p>上述两个文件编译运行后有着这样的结果：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">➜  ~ gcc main.c module.c</span><br><span class="line">➜  ~ ./a.out</span><br><span class="line">a = 9999</span><br><span class="line">ext = 11</span><br><span class="line">c.biancheng.net</span><br><span class="line">This is ext_func().</span><br></pre></td></tr></table></figure>
 
-<p>创建并命名 session。以上的指令都会让你直接进入新创建的 session。</p>
-<p>在你的 tmux 服务器端已经运行一个或多个 session，并且你想进入其中之一时，使用：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tmux at</span><br></pre></td></tr></table></figure>
-
-<p>这会让你进入其中之一，然后你在使用 ctrl+b s，切换到你想要的 session 即可。确实存在指定 session 进入的方法，但我认为这才是比较高效的做法。就像是绝大部分 tmux 的命令一样，我这里就不予介绍了。</p>
-<p>新建 session：</p>
-<p>关闭 session：</p>
-<p>重命名当前 session：ctrl+b $。同样存在重命名其他 session 的方法，你不妨切换到那个 session 再做修改。</p>
-<p>在列表中切换 session：ctrl+b s。然后可以使用 ctrl+p 和 ctrl+n 上下选择。</p>
-<h2 id="2-窗口-window"><a href="#2-窗口-window" class="headerlink" title="2. 窗口 window"></a>2. 窗口 window</h2><p>一个 session 中可以包含多个 window。这些 window 共同组成了一个工作环境。比如你希望一个 window 用来编辑代码，另一个 window 用来编译和执行。</p>
-<p>创建 window：ctrl+b c。create。</p>
-<p>关闭当前 window：ctrl+b &amp;。</p>
-<p>切换到上一个 window：ctrl+b p。</p>
-<p>切换到下一个 window：ctrl+b n。</p>
-<p>在列表中切换 window：ctrl+b w。然后可以使用 ctrl+p 和 ctrl+n 上下选择。</p>
-<h2 id="3-面板-pane"><a href="#3-面板-pane" class="headerlink" title="3. 面板 pane"></a>3. 面板 pane</h2><p>window 类似于桌面，在一个屏幕上不共存。想要一目了然还需要 pane。它会将当前屏幕分为多个面板，每个面板可以单独操作。</p>
-<p>左右划分 pane：ctrl+b %。% 很像是一个 &#x2F; 分开了两个 o。</p>
-<p>上下划分 pane：ctrl+b “。这个不好解释。</p>
-<p>光标切换到下一个 pane：ctrl+b o。other。</p>
-<p>关闭当前光标所在 pane：ctrl+b x。</p>
-<p>调整 pane 大小：ctrl+b :resize-pane -D|U|L|R &lt;size&gt;。</p>
+<p>可以看到，在 main() 函数里所有符号都被找到了，其中定义在 module.c 中的强符号 a 覆盖了 main.c 中的弱符号。</p>
 
     </div>
 
@@ -268,7 +248,8 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/tmux/" rel="tag"># tmux</a>
+              <a href="/tags/C/" rel="tag"># C</a>
+              <a href="/tags/GCC/" rel="tag"># GCC</a>
           </div>
 
         
@@ -276,13 +257,10 @@
 
         
     <div class="post-nav">
+      <div class="post-nav-item"></div>
       <div class="post-nav-item">
-    <a href="/2023/07/07/ELF%20%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F/" rel="prev" title="ELF 文件格式">
-      <i class="fa fa-chevron-left"></i> ELF 文件格式
-    </a></div>
-      <div class="post-nav-item">
-    <a href="/2023/07/12/Linux%20%E5%86%85%E6%A0%B8%E8%B0%83%E8%AF%95/" rel="next" title="Linux 内核调试">
-      Linux 内核调试 <i class="fa fa-chevron-right"></i>
+    <a href="/2023/06/24/hello-world/" rel="next" title="Hello World">
+      Hello World <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -342,7 +320,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#0-tmux-%E7%9A%84%E6%8B%B3%E5%A4%B4%E7%89%B9%E6%80%A7"><span class="nav-text">0. tmux 的拳头特性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E4%BC%9A%E8%AF%9D-session"><span class="nav-text">1. 会话 session</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E7%AA%97%E5%8F%A3-window"><span class="nav-text">2. 窗口 window</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E9%9D%A2%E6%9D%BF-pane"><span class="nav-text">3. 面板 pane</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#0-%E5%8F%82%E8%80%83"><span class="nav-text">0. 参考</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E5%BC%BA%E5%BC%B1%E7%AC%A6%E5%8F%B7%E7%9A%84%E6%A6%82%E5%BF%B5"><span class="nav-text">1. 强弱符号的概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E5%A4%9A%E6%96%87%E4%BB%B6%E4%B8%AD%E7%9A%84%E5%BC%BA%E5%BC%B1%E7%AC%A6%E5%8F%B7"><span class="nav-text">2. 多文件中的强弱符号</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
